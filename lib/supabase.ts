@@ -39,6 +39,7 @@ export interface RentalItem {
     created_at: string;
     updated_at: string;
     owner?: Profile;
+    is_available?: boolean;
 }
 
 export interface Booking {
