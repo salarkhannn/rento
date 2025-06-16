@@ -1,57 +1,74 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
-import { testBackend } from '@/lib/test-queries';
+import { RentalItemCard } from '@/components/RentalItemCard';
+import { getRentalItems } from '@/lib/queries';
+import { RentalItem } from '@/lib/supabase';
 
-export default function TabOneScreen() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [testResults, setTestResults] = useState<string>('Not tested yet');
+export default function BrowseScreen() {
+  const [items, setItems] = useState<RentalItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const runTest = async () => {
-    setIsLoading(true);
-    setTestResults('Testing...');
-    
+  const loadItems = async () => {
     try {
-      const success = await testBackend();
-      if (success) {
-        setTestResults('✅ Backend test passed!');
-        Alert.alert('Success', 'Backend is working correctly!');
-      } else {
-        setTestResults('❌ Backend test failed');
-        Alert.alert('Error', 'Backend test failed. Check console for details.');
-      }
+      setError(null);
+      const data = await getRentalItems();
+      setItems(data);
     } catch (error) {
-      console.error('Test error:', error);
-      setTestResults(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      Alert.alert('Error', 'Failed to run backend test');
+      console.error('Error loading items:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load items');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  // Auto-run test on component mount
   useEffect(() => {
-    runTest();
+    loadItems();
   }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadItems();
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2f95dc" />
+        <Text style={styles.loadingText}>Loading items...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Rento - Backend Test</Text>
-      
-      <TouchableOpacity 
-        style={styles.testButton} 
-        onPress={runTest}
-        disabled={isLoading}
-      >
-        <Text style={styles.buttonText}>
-          {isLoading ? 'Testing...' : 'Run Backend Test'}
-        </Text>
-      </TouchableOpacity>
-      
-      <View style={styles.resultContainer}>
-        <Text style={styles.resultText}>{testResults}</Text>
-      </View>
+      <FlatList
+        data={items}
+        renderItem={({ item }) => <RentalItemCard item={item} />}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No items available</Text>
+            <Text style={styles.emptySubtext}>Check back later for new rentals!</Text>
+          </View>
+        }
+      />
     </View>
   );
 }
@@ -59,35 +76,37 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  centerContainer: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
-  },
-  testButton: {
-    backgroundColor: '#2f95dc',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: 'white',
+  loadingText: {
+    marginTop: 10,
     fontSize: 16,
-    fontWeight: 'bold',
+    color: '#666',
   },
-  resultContainer: {
-    padding: 15,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
-    minHeight: 60,
-    justifyContent: 'center',
-  },
-  resultText: {
-    fontSize: 14,
+  errorText: {
+    fontSize: 16,
+    color: '#F44336',
     textAlign: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#666',
   },
 });
