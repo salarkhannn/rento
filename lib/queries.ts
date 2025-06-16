@@ -6,7 +6,7 @@ export const getRentalItems = async (): Promise<RentalItem[]> => {
         .from('rental_items')
         .select(`
             *,
-            owner:profile(*)    
+            owner:profiles(*)    
         `)
         .eq('is_available', true)
         .order('created_at', { ascending: false });
@@ -20,13 +20,13 @@ export const getRentalItem = async (id: string) : Promise<RentalItem | null> => 
         .from('rental_items')
         .select(`
             *,
-            owner:profile(*)    
+            owner:profiles(*)    
         `)
         .eq('id', id)
         .single();
 
     if (error) throw error;
-    return data || [];
+    return data;
 };
 
 export const createRentalItem = async (item: Omit<RentalItem, 'id' | 'created_at' | 'updated_at' | 'owner'>): Promise<RentalItem> => {
@@ -119,7 +119,7 @@ export const getProfile = async (): Promise<Profile |null> => {
     if (!user) return null;
 
     const { data, error } = await supabase
-        .from('profile')
+        .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
@@ -133,7 +133,7 @@ export const updateProfile = async (updates: Partial<Profile>): Promise<Profile>
     if (!user) throw new Error('Not authenticated');
 
     const { data, error } = await supabase
-        .from('profile')
+        .from('profiles')
         .update(updates)
         .eq('id', user.id)
         .select()

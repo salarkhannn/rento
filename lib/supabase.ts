@@ -45,7 +45,7 @@ export interface Booking {
     item_id: string;
     renter_id: string;
     start_date: string;
-    end_data: string;
+    end_date: string;
     status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
     total_price: number;
     message?: string;
