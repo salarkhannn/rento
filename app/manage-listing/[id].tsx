@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } fr
 import { useLocalSearchParams, router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
-import { getRentalItem, getListingBookings, updateBookingStatus } from '@/lib/queries';
+import { getRentalItem, getListingBookings, updateBookingStatus, deleteRentalItem } from '@/lib/queries';
 import { RentalItem, Booking } from '@/lib/supabase';
 
 export default function ManageListingScreen() {
@@ -65,6 +65,40 @@ export default function ManageListingScreen() {
         }
       ]
     )
+  }
+
+  const handleEditListing = () => {
+    router.push(`/edit-listing/${id}`);
+  };
+
+  const handleDeleteListing = async () => {
+    Alert.alert(
+      'Delete Listing',
+      'Are you sure you want to delete this listing? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: confirmDeleteListing
+        }
+      ]
+    );
+  };
+
+  const confirmDeleteListing = async () => {
+    try {
+      await deleteRentalItem(id!);
+      Alert.alert('Success', 'Listing deleted successfully', [
+        {
+          text: 'OK',
+          onPress: () => router.push('/my-listings')
+        }
+      ]);
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      Alert.alert('Error', 'Failed to delete listing');
+    }
   }
 
   if (loading) {
@@ -141,10 +175,16 @@ export default function ManageListingScreen() {
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.editButton}>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={handleEditListing}
+        >
           <Text style={styles.buttonText}>Edit Listing</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteButton}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={handleDeleteListing}
+        >
           <Text style={styles.buttonText}>Delete Listing</Text>
         </TouchableOpacity>
       </View>

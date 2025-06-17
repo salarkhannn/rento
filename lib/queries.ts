@@ -146,6 +146,24 @@ export const getListingBookings = async (itemId: string): Promise<Booking[]> => 
     return data || [];
 }
 
+export const updateRentalItem = async (itemId: string, updates: Partial<RentalItem>) => {
+    const { error } = await supabase
+        .from('rental_items')
+        .update(updates)
+        .eq('id', itemId);
+
+    if (error) throw error;
+}
+
+export const deleteRentalItem = async (itemId: string): Promise<void> => {
+    const { error } = await supabase
+        .from('rental_items')
+        .delete()
+        .eq('id', itemId);
+
+    if (error) throw error;
+}
+
 // Profile queries
 export const getProfile = async (): Promise<Profile |null> => {
     const { data: { user } } = await supabase.auth.getUser();
