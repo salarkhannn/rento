@@ -1,17 +1,23 @@
 import { useAuth } from "@/lib/AuthContext";
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View } from "./Themed";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const { session, loading } = useAuth();
 
+    useEffect(() => {
+        if (!loading && !session) {
+            router.replace('/auth/sign-in');
+        }
+    }, [loading, session]);
+
     if (loading) {
         return (
-            <View>
-                <ActivityIndicator/>
-                <Text>Loading...</Text>
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#2f95dc"/>
+                <Text style={styles.loadingText}>Loading...</Text>
             </View>
         )
     }
@@ -19,11 +25,31 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!session) {
         router.replace('/auth/sign-in');
         return (
-            <View>
-                <Text>You must be signed in to view this page.</Text>
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#2f95dc"/>
+                <Text style={styles.redirectText}>You must be signed in to view this page.</Text>
             </View>
         );
     }
 
     return <>{children}</>;
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#666',
+    },
+    redirectText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#666',
+    },
+});
