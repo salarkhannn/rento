@@ -36,10 +36,10 @@ export interface RentalItem {
     location: string;
     category: string;
     owner_id: string;
+    is_available?: boolean;
     created_at: string;
     updated_at: string;
     owner?: Profile;
-    is_available?: boolean;
 }
 
 export interface Booking {
