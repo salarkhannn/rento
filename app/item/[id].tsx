@@ -6,6 +6,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
 
+import DateTimePIcker from '@react-native-community/datetimepicker'
+
 export default function ItemDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { user } = useAuth();
@@ -14,6 +16,9 @@ export default function ItemDetailScreen() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+
+    const [showStartPicker, setShowStartPicker] = useState(false);
+    const [showEndPicker, setShowEndPicker] = useState(false);
 
     useEffect(() => {
         loadItem();
@@ -157,23 +162,61 @@ export default function ItemDetailScreen() {
                         <View style={styles.dateInputs}>
                             <View style={styles.dateInput}>
                                 <Text style={styles.inputLabel}>Start Date (YYYY-MM-DD):</Text>
-                                <Text style={styles.input} onPress={() => {
-                                    const tomorrow = new Date();
-                                    tomorrow.setDate(tomorrow.getDate() + 1);
-                                    setStartDate(tomorrow.toISOString().split('T')[0]);
-                                }}>
+                                <TouchableOpacity
+                                  style={styles.dateButton}
+                                  onPress={() => setShowStartPicker(true)}
+                                >
+                                  <Text style={[
+                                    styles.dateButtonText,
+                                    { color: startDate ? '#333' : '#999'}  
+                                  ]}>
                                     {startDate || 'Select start date'}
-                                </Text>
+                                  </Text>
+                                </TouchableOpacity>
+                                
+                              {showStartPicker && (
+                                <DateTimePIcker
+                                    value={startDate ? new Date(startDate) : new Date()}
+                                    mode="date"
+                                    display="default"
+                                    minimumDate={new Date()}
+                                    onChange={(event, selectedDate) => {
+                                      setShowStartPicker(false);
+                                      if (selectedDate) {
+                                        setStartDate(selectedDate.toISOString().split('T')[0]);
+                                      }
+                                    }}
+                                />
+                              )}
                             </View>
                             <View style={styles.dateInput}>
                                 <Text style={styles.inputLabel}>End Date (YYYY-MM-DD):</Text>
-                                <Text style={styles.input} onPress={() => {
-                                    const dayAfterTomorrow = new Date();
-                                    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-                                    setEndDate(dayAfterTomorrow.toISOString().split('T')[0]);
-                                }}>
-                                    {endDate || 'Select end date'}
-                                </Text>
+                                <TouchableOpacity
+                                  style={styles.dateButton}
+                                  onPress={() => setShowEndPicker(true)}
+                                >
+                                  <Text style={[
+                                    styles.dateButtonText,
+                                    { color: endDate ? '#333' : '#999' }
+                                  ]}>
+                                      {endDate || 'Select end date'}
+                                  </Text>
+                                </TouchableOpacity>
+
+                                {showEndPicker && (
+                                  <DateTimePIcker
+                                    value={endDate ? new Date(endDate) : new Date()}
+                                    mode="date"
+                                    display="default"
+                                    minimumDate={startDate ? new Date(startDate) : new Date()}
+                                    onChange={(event, selectedDate) => {
+                                      setShowEndPicker(false);
+                                      if (selectedDate) {
+                                        setEndDate(selectedDate.toISOString().split('T')[0]);
+                                      }
+                                    }}
+                                  />
+                                )}
                             </View>
 
                             {startDate && endDate && (
@@ -289,6 +332,16 @@ const styles = StyleSheet.create({
   },
   dateInput: {
     marginBottom: 12,
+  },
+  dateButton: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  dateButtonText: {
+      fontSize: 16,
   },
   inputLabel: {
     fontSize: 14,
