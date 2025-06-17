@@ -126,13 +126,6 @@ export default function ItemDetailScreen() {
         )
     }
 
-    console.log('Debug info:', {
-      hasItem: !!item,
-      isAvailable: item?.is_available,
-      userNotOwner: user?.id !== item?.owner_id,
-      shouldShowBooking: item?.is_available && user?.id !== item?.owner_id
-  });
-
     return (
         <ScrollView style={styles.container}>
             {item.image_url ? (
