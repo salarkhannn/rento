@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } fr
 import { useLocalSearchParams, router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
-import { getRentalItem, getListingBookings } from '@/lib/queries';
+import { getRentalItem, getListingBookings, updateBookingStatus } from '@/lib/queries';
 import { RentalItem, Booking } from '@/lib/supabase';
 
 export default function ManageListingScreen() {
@@ -34,6 +34,38 @@ export default function ManageListingScreen() {
       setLoading(false);
     }
   };
+
+  const handleApproveBooking = async (bookingId: string) => {
+    try {
+      await updateBookingStatus(bookingId, 'CONFIRMED');
+      loadData(); // Refresh data after approval
+      Alert.alert('Success', 'Booking approved successfully');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to approve booking');
+    }
+  };
+
+  const handleRejectBooking = async (bookingId: string) => {
+    Alert.alert(
+      'Reject Booking',
+      'Are you sure you want to reject this booking?',
+      [
+        { text: 'Cancel' },
+        {
+          text: 'Reject',
+          onPress: async () => {
+            try {
+              await updateBookingStatus(bookingId, 'CANCELLED');
+              loadData(); // Refresh data after rejection
+              Alert.alert('Success', 'Booking rejected successfully');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to reject booking');
+            }
+          }
+        }
+      ]
+    )
+  }
 
   if (loading) {
     return (
@@ -88,9 +120,24 @@ export default function ManageListingScreen() {
               <Text style={[styles.bookingStatus, { color: getStatusColor(booking.status) }]}>
                 Status: {booking.status}
               </Text>
+              {booking.status === 'PENDING' && (
+                <View>
+                  <TouchableOpacity
+                    onPress={() => handleApproveBooking(booking.id)}
+                  >
+                    <Text>Approve</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleRejectBooking(booking.id)}
+                  >
+                    <Text>Reject</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           ))
         )}
+
       </View>
 
       <View style={styles.actions}>
