@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { categories } from './utils/categories';
 
 export default function CreateItemScreen() {
   const { user } = useAuth();
@@ -20,10 +21,6 @@ export default function CreateItemScreen() {
   const [loading, setLoading] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-
-  const categories = [
-    'Electronics', 'Vehicles', 'Tools', 'Sports', 'Home & Garden', 'Events', 'Other'
-  ];
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();

@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { categories } from "../utils/categories";
 
 export default function EditListingScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -17,10 +18,6 @@ export default function EditListingScreen() {
     const [isAvailable, setIsAvailable] = useState(true);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
-    const categories = [
-        'Electronics', 'Vehicles', 'Tools', 'Sports', 'Home & Garden', 'Events', 'Other'
-    ];
 
     useEffect(() => {
         loadItem();
