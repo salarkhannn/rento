@@ -117,7 +117,7 @@ export default function CreateItemScreen() {
         category,
         owner_id: user.id,
         is_available: true,
-        image_url: imageUrl,
+        image_url: imageUrl || undefined,
       });
 
       Alert.alert(
