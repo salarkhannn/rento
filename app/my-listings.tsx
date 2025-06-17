@@ -36,7 +36,7 @@ export default function MyListingsScreen() {
     const renderListing = ({ item }: { item: RentalItem }) => (
         <TouchableOpacity
             style={styles.listingCard}
-            onPress={() => router.push(`/item/${item.title}`)}
+            onPress={() => router.push(`/item/${item.id}`)}
         >
             <View style={styles.listingHeader}>
                 <Text style={styles.title}>{item.title}</Text>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import { RentalItemCard } from '@/components/RentalItemCard';
@@ -13,6 +13,8 @@ export default function BrowseScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   const loadData = async () => {
     try {
@@ -37,12 +39,25 @@ export default function BrowseScreen() {
   }, []);
 
   useEffect(() => {
-    if (selectedCategory === 'All') {
-      setFilteredItems(items);
-    } else {
-      setFilteredItems(items.filter(item => item.category === selectedCategory));
+    let filtered = items;
+    
+    // filter by category
+    if (selectedCategory !== 'All') {
+      filtered = items.filter(item => item.category === selectedCategory);
     }
-  }, [selectedCategory, items]);
+
+    // filter by search query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.location.toLowerCase().includes(searchQuery.toLowerCase())||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredItems(filtered);
+  }, [selectedCategory, items, searchQuery]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -60,6 +75,15 @@ export default function BrowseScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search items..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          returnKeyType='search'
+        />
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -125,6 +149,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
+  searchContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+},
+searchInput: {
+    backgroundColor: '#f5f5f5',
+    padding: 12,
+    borderRadius: 8,
+    fontSize: 16,
+},
   categoryFilter: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
