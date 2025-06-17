@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
-import { getMyBookings } from '@/lib/queries';
+import { getMyBookings, updateBookingStatus } from '@/lib/queries';
 import { Booking } from '@/lib/supabase';
 
 export default function BookingsScreen() {
@@ -16,6 +16,7 @@ export default function BookingsScreen() {
       setBookings(data);
     } catch (error) {
       console.error('Error loading bookings:', error);
+      Alert.alert('Error', 'Failed to load bookings. Please try again later.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -31,18 +32,73 @@ export default function BookingsScreen() {
     loadBookings();
   };
 
+  const handleCancelBooking = (booking: Booking) => {
+    if (booking.status !== 'PENDING') {
+      Alert.alert('Cannot Cancel', 'You can only cancel bookings that are pending.');
+      return;
+    }
+
+    Alert.alert(
+      'Cancel Booking',
+      'Are you sure you want to cancel this booking?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          style: 'destructive',
+          onPress: () => cancelBooking(booking.id)
+        },
+      ]
+    )
+  };
+
+  const cancelBooking = async (bookingId: string) => {
+    try {
+      await updateBookingStatus(bookingId, 'CANCELLED');
+      loadBookings(); // Refresh the list
+      Alert.alert('Success', 'Booking has been cancelled successfully.');
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      Alert.alert('Error', 'Failed to cancel booking. Please try again later.');
+    }
+  }
+
   const renderBooking = ({ item: booking }: { item: Booking }) => (
     <View style={styles.bookingCard}>
-      <Text style={styles.itemTitle}>{booking.item?.title || 'Unknown Item'}</Text>
-      <Text style={styles.dates}>
-        {booking.start_date} - {booking.end_date}
-      </Text>
-      <View style={styles.bookingFooter}>
-        <Text style={styles.price}>${booking.total_price}</Text>
-        <Text style={[styles.status, { color: getStatusColor(booking.status) }]}>
-          {booking.status}
-        </Text>
+      <View style={styles.bookingHeader}>
+        <Text style={styles.itemTitle}>{booking.item?.title || 'Unknown Item'}</Text>
+        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
+          <Text style={styles.statusText}>{booking.status}</Text>
+        </View>
       </View>
+
+      <Text style={styles.dates}>
+        📅 {booking.start_date} → {booking.end_date}
+      </Text>
+
+      <Text style={styles.location}>
+        📍 {booking.item?.location || 'Unknown location'}
+      </Text>
+
+      <View style={styles.bookingFooter}>
+        <Text style={styles.price}>💰 ${booking.total_price}</Text>
+        
+        {booking.status === 'PENDING' && (
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => handleCancelBooking(booking)}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      {booking.message && (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageLabel}>Message:</Text>
+          <Text style={styles.messageText}>{booking.message}</Text>
+        </View>
+      )}
     </View>
   );
 
@@ -57,6 +113,11 @@ export default function BookingsScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>My Bookings</Text>
+        <Text style={styles.subtitle}>{bookings.length} booking(s)</Text>
+      </View>
+      
       <FlatList
         data={bookings}
         renderItem={renderBooking}
@@ -67,6 +128,7 @@ export default function BookingsScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>📋</Text>
             <Text style={styles.emptyText}>No bookings yet</Text>
             <Text style={styles.emptySubtext}>Browse items to make your first booking!</Text>
           </View>
@@ -86,10 +148,26 @@ function getStatusColor(status: string) {
   }
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  header: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
   },
   centerContainer: {
     flex: 1,
@@ -108,15 +186,37 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  bookingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
   itemTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 4,
+    flex: 1,
+    marginRight: 12,
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   dates: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 8,
+    marginBottom: 4,
+  },
+  location: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
   },
   bookingFooter: {
     flexDirection: 'row',
@@ -128,15 +228,42 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2f95dc',
   },
-  status: {
+  cancelButton: {
+    backgroundColor: '#FF5252',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  messageContainer: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+  },
+  messageLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 4,
+  },
+  messageText: {
     fontSize: 14,
-    fontWeight: '500',
+    color: '#333',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 100,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
   },
   emptyText: {
     fontSize: 18,
@@ -146,5 +273,6 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 14,
     color: '#666',
+    textAlign: 'center',
   },
 });

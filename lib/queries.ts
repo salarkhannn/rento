@@ -113,6 +113,39 @@ export const updateBookingStatus = async (
     return data;
 }
 
+// Listing bookings
+export const getMyListings = async (): Promise<RentalItem[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('rental_items')
+        .select(`
+            *,
+            owner:profiles(*)
+        `)
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+}
+
+export const getListingBookings = async (itemId: string): Promise<Booking[]> => {
+    const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+            *,
+            renter:profiles(*),
+            item:rental_items(*)
+        `)
+        .eq('item_id', itemId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+}
+
 // Profile queries
 export const getProfile = async (): Promise<Profile |null> => {
     const { data: { user } } = await supabase.auth.getUser();

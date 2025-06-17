@@ -5,6 +5,7 @@ import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/lib/AuthContext';
 import { getProfile } from '@/lib/queries';
 import { Profile } from '@/lib/supabase';
+import { router } from 'expo-router';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -46,7 +47,10 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.menuItem}>
           <Text>Edit Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/my-listings')}
+        >
           <Text>My Listings</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>

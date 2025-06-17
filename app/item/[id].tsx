@@ -6,7 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
 
-import DateTimePIcker from '@react-native-community/datetimepicker'
+import DateTimePicker from '@react-native-community/datetimepicker'
 
 export default function ItemDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -126,6 +126,13 @@ export default function ItemDetailScreen() {
         )
     }
 
+    console.log('Debug info:', {
+      hasItem: !!item,
+      isAvailable: item?.is_available,
+      userNotOwner: user?.id !== item?.owner_id,
+      shouldShowBooking: item?.is_available && user?.id !== item?.owner_id
+  });
+
     return (
         <ScrollView style={styles.container}>
             {item.image_url ? (
@@ -175,7 +182,7 @@ export default function ItemDetailScreen() {
                                 </TouchableOpacity>
                                 
                               {showStartPicker && (
-                                <DateTimePIcker
+                                <DateTimePicker
                                     value={startDate ? new Date(startDate) : new Date()}
                                     mode="date"
                                     display="default"
@@ -204,7 +211,7 @@ export default function ItemDetailScreen() {
                                 </TouchableOpacity>
 
                                 {showEndPicker && (
-                                  <DateTimePIcker
+                                  <DateTimePicker
                                     value={endDate ? new Date(endDate) : new Date()}
                                     mode="date"
                                     display="default"

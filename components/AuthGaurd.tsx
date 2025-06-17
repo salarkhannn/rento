@@ -5,15 +5,16 @@ import { ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-    const { session, loading } = useAuth();
+    const { session, loading, isInitialized } = useAuth();
 
     useEffect(() => {
-        if (!loading && !session) {
+        if (isInitialized && !loading && !session) {
+            console.log('AuthGaurd: Redirecting to sign-in');
             router.replace('/auth/sign-in');
         }
-    }, [loading, session]);
+    }, [isInitialized, loading, session]);
 
-    if (loading) {
+    if (!isInitialized || loading) {
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color="#2f95dc"/>
@@ -23,11 +24,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     if (!session) {
-        router.replace('/auth/sign-in');
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color="#2f95dc"/>
-                <Text style={styles.redirectText}>You must be signed in to view this page.</Text>
+                <Text style={styles.redirectText}>Redirecting to sign in...</Text>
             </View>
         );
     }

@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import { RentalItemCard } from '@/components/RentalItemCard';
-import { getRentalItems } from '@/lib/queries';
-import { RentalItem } from '@/lib/supabase';
+import { getCategories, getRentalItems } from '@/lib/queries';
+import { Category, RentalItem } from '@/lib/supabase';
 
 export default function BrowseScreen() {
   const [items, setItems] = useState<RentalItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<RentalItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const loadItems = async () => {
+  const loadData = async () => {
     try {
-      setError(null);
-      const data = await getRentalItems();
-      setItems(data);
+      const [itemsData, categoriesData] = await Promise.all([
+        getRentalItems(),
+        getCategories()
+      ]);
+      
+      setItems(itemsData);
+      setFilteredItems(itemsData);
+      setCategories([{ id: 'all', name: 'All', created_at: '' }, ...categoriesData]);
     } catch (error) {
-      console.error('Error loading items:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load items');
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -27,12 +33,20 @@ export default function BrowseScreen() {
   };
 
   useEffect(() => {
-    loadItems();
+    loadData();
   }, []);
+
+  useEffect(() => {
+    if (selectedCategory === 'All') {
+      setFilteredItems(items);
+    } else {
+      setFilteredItems(items.filter(item => item.category === selectedCategory));
+    }
+  }, [selectedCategory, items]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadItems();
+    loadData();
   };
 
   if (loading) {
@@ -44,27 +58,49 @@ export default function BrowseScreen() {
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>Error: {error}</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.categoryFilter}
+        contentContainerStyle={styles.categoryFilterContent}
+      >
+        {categories.map(category => (
+          <TouchableOpacity
+            key={category.id}
+            style={[
+              styles.categoryButton,
+              selectedCategory === category.name && styles.categoryButtonSelected
+            ]}
+            onPress={() => setSelectedCategory(category.name)}
+          >
+            <Text style={[
+              styles.categoryButtonText,
+              selectedCategory === category.name && styles.categoryButtonTextSelected
+            ]}>
+              {category.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       <FlatList
-        data={items}
+        data={filteredItems}
         renderItem={({ item }) => <RentalItemCard item={item} />}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item)=> item.id}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No items available</Text>
+            <Text style={styles.emptyText}>
+              {selectedCategory === 'All'
+                ? 'No items available'
+                : `No items found in "${selectedCategory.toLowerCase()}" category`
+              }
+            </Text>
             <Text style={styles.emptySubtext}>Check back later for new rentals!</Text>
           </View>
         }
@@ -89,10 +125,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  errorText: {
-    fontSize: 16,
-    color: '#F44336',
-    textAlign: 'center',
+  categoryFilter: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  categoryFilterContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  categoryButton: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  categoryButtonSelected: {
+    backgroundColor: '#2f95dc',
+  },
+  categoryButtonText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  categoryButtonTextSelected: {
+    color: '#fff',
+    fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,
@@ -104,6 +163,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 14,
