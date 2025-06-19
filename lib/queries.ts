@@ -102,6 +102,7 @@ export const updateBookingStatus = async (
     bookingId: string,
     status: Booking['status']
 ): Promise<Booking> => {
+    
     const { data, error } = await supabase
         .from('bookings')
         .update({ status })
