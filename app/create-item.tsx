@@ -3,6 +3,9 @@ import { StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image } fro
 import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
+import { PickupLocationInput } from '@/components/PickupLocationInput';
+import { AvailabilityPicker } from '@/components/AvailabilityPicker';
+import { PickupMethodSelector } from '@/components/PickupMethodSelector';
 import { createRentalItem } from '@/lib/queries';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -10,6 +13,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { categories } from './utils/categories';
+
+type PickupMethod = 'owner_delivery' | 'renter_pickup' | 'courier_supported';
 
 export default function CreateItemScreen() {
   const { user } = useAuth();
@@ -22,11 +27,23 @@ export default function CreateItemScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  // New fields
+  const [pickupLocation, setPickupLocation] = useState<{
+    latitude: number;
+    longitude: number;
+    address: string;
+  } | null>(null);
+  const [availability, setAvailability] = useState<{
+    availableFrom: string | null;
+    availableTo: string | null;
+  }>({ availableFrom: null, availableTo: null });
+  const [pickupMethod, setPickupMethod] = useState<PickupMethod>('renter_pickup');
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Sorry, we need camera roll persmissions to upload images.');
+      Alert.alert('Permission needed', 'Sorry, we need camera roll permissions to upload images.');
       return;
     }
 
@@ -40,16 +57,14 @@ export default function CreateItemScreen() {
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
     }
-  }
+  };
 
-  // image upload function
   const uploadImage = async (uri: string) => {
     if (!user || !uri) return null;
 
     try {
       setUploading(true);
 
-      // create form data
       const formData = new FormData();
       formData.append('file', {
         uri: uri,
@@ -57,7 +72,6 @@ export default function CreateItemScreen() {
         name: `${Date.now()}.jpg`,
       } as any);
 
-      // upload to supabase storage
       const filename = `${user.id}/${Date.now()}.jpg`;
       
       const { data, error } = await supabase.storage
@@ -66,23 +80,27 @@ export default function CreateItemScreen() {
 
       if (error) throw error;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('rental-images')
         .getPublicUrl(filename);
 
       return publicUrl;
     } catch (error) {
-      console.error('Error uplooading iamge:', error);
+      console.error('Error uploading image:', error);
       return null;
     } finally {
       setUploading(false);
     }
-  }
+  };
 
   const handleSubmit = async () => {
     if (!title || !description || !price || !location || !category) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+
+    if (!pickupLocation) {
+      Alert.alert('Error', 'Please select a pickup location');
       return;
     }
 
@@ -101,7 +119,6 @@ export default function CreateItemScreen() {
     try {
       let imageUrl: string | null = null;
 
-      // Upload image if selected
       if (imageUri) {
         imageUrl = await uploadImage(imageUri);
       }
@@ -115,6 +132,13 @@ export default function CreateItemScreen() {
         owner_id: user.id,
         is_available: true,
         image_url: imageUrl || undefined,
+        // New fields
+        latitude: pickupLocation.latitude,
+        longitude: pickupLocation.longitude,
+        address: pickupLocation.address,
+        available_from: availability.availableFrom || undefined,
+        available_to: availability.availableTo || undefined,
+        pickup_method: pickupMethod,
       });
 
       Alert.alert(
@@ -141,14 +165,14 @@ export default function CreateItemScreen() {
         
         <TextInput
           style={styles.input}
-          placeholder="Item Title"
+          placeholder="Item Title *"
           value={title}
           onChangeText={setTitle}
         />
         
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="Description"
+          placeholder="Description *"
           value={description}
           onChangeText={setDescription}
           multiline
@@ -157,7 +181,7 @@ export default function CreateItemScreen() {
         
         <TextInput
           style={styles.input}
-          placeholder="Price per day (USD)"
+          placeholder="Price per day (USD) *"
           value={price}
           onChangeText={setPrice}
           keyboardType="numeric"
@@ -165,12 +189,12 @@ export default function CreateItemScreen() {
         
         <TextInput
           style={styles.input}
-          placeholder="Location"
+          placeholder="General Location (e.g., City, Neighborhood) *"
           value={location}
           onChangeText={setLocation}
         />
         
-        <Text style={styles.label}>Category</Text>
+        <Text style={styles.label}>Category *</Text>
         <View style={styles.categoryContainer}>
           {categories.map((cat) => (
             <TouchableOpacity
@@ -190,6 +214,19 @@ export default function CreateItemScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        <PickupLocationInput
+          onLocationChange={setPickupLocation}
+        />
+
+        <AvailabilityPicker
+          onDatesChange={setAvailability}
+        />
+
+        <PickupMethodSelector
+          onMethodChange={setPickupMethod}
+          initialMethod={pickupMethod}
+        />
 
         <View style={styles.imageSection}>
           <Text style={styles.label}>Photos</Text>
@@ -230,7 +267,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: 16,
-        paddingBottom: 100, // Extra bottom padding
+        paddingBottom: 100,
     },
     title: {
         fontSize: 24,
@@ -314,7 +351,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
         marginTop: 20,
-        marginBottom: 20, // Add margin bottom
+        marginBottom: 20,
     },
     submitButtonText: {
         color: '#fff',
@@ -322,6 +359,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     bottomSpacer: {
-        height: 50, // Extra space at bottom
+        height: 50,
     },
 });
