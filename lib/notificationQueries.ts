@@ -276,7 +276,7 @@ export async function handleBookingStatusChange(bookingId: string, status: strin
             .from('profiles')
             .select('id, name')
             .eq('id', booking.renter_id)
-            .single();
+            .maybeSingle();
 
         if (renterError || !renter) {
             console.error('Renter not found for booking:', booking.renter_id);
@@ -284,7 +284,18 @@ export async function handleBookingStatusChange(bookingId: string, status: strin
             return;
         }
 
-        console.log('All data fetched successfully:');
+                // Use fallback names in case a profile is missing
+        const ownerName = owner?.name || 'The Owner';
+        const renterName = renter?.name || 'A Renter';
+
+        if (renterError) {
+            console.error('Error fetching renter details:', renterError);
+        }
+        if (ownerError) {
+            console.error('Error fetching owner details:', ownerError);
+        }
+
+        console.log('All data fetched successfully');
 
         let template;
         let notificationType: NotificationType;
@@ -294,31 +305,40 @@ export async function handleBookingStatusChange(bookingId: string, status: strin
             case 'CONFIRMED':
                 template = NotificationTemplates.bookingApproved(
                     item.title,
-                    owner.name
+                    ownerName
                 );
                 notificationType = 'booking_approved';
                 targetUserId = booking.renter_id;
                 break;
             case 'CANCELLED':
-                // Determine who cancelled the booking based on booking status
-                if (booking.status === 'PENDING') {
-                    // Owner rejected the booking
-                    console.log('Booking cancelled by owner');
+                // Correctly determine who is cancelling by checking the current user
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    console.error('Could not determine current user for cancellation notification.');
+                    return;
+                }
+
+                if (user.id === item.owner_id) {
+                    // Owner is rejecting the booking
+                    console.log('Booking rejected by owner');
                     template = NotificationTemplates.bookingRejected(
                         item.title,
-                        owner.name
+                        ownerName
                     );
                     notificationType = 'booking_rejected';
-                    targetUserId = booking.renter_id;
-                } else {
-                    // Renter cancelled the booking
+                    targetUserId = booking.renter_id; // Notify the renter
+                } else if (user.id === booking.renter_id) {
+                    // Renter is cancelling the booking
                     console.log('Booking cancelled by renter');
                     template = NotificationTemplates.bookingCancelled(
                         item.title,
-                        renter.name
+                        renterName
                     );
                     notificationType = 'booking_cancelled';
-                    targetUserId = item.owner_id;
+                    targetUserId = item.owner_id; // Notify the owner
+                } else {
+                    console.error('User performing cancellation is neither the owner nor the renter.');
+                    return;
                 }
                 break;
             default:
