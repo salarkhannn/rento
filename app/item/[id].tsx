@@ -113,7 +113,6 @@ export default function ItemDetailScreen() {
             await handleBookingRequest(booking.id, item.id, booking.renter_id);
 
             // Show local notification to the user who made the booking
-            const template = NotificationTemplates.bookingRequest(item.title, user?.name || 'Someone');
             await scheduleLocalNotification(
                 '🎉 Booking Request Sent!',
                 `Your booking request for "${item.title}" has been sent to the owner`,

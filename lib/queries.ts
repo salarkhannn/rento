@@ -74,6 +74,7 @@ export const getItemBookings = async (itemId: string): Promise<Booking[]> => {
 
 export const createBooking = async (booking: {
     item_id: string;
+    renter_id?: string;
     start_date: string;
     end_date: string;
     total_price: number;
@@ -102,7 +103,7 @@ export const updateBookingStatus = async (
     bookingId: string,
     status: Booking['status']
 ): Promise<Booking> => {
-    
+
     const { data, error } = await supabase
         .from('bookings')
         .update({ status })
