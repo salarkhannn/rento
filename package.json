@@ -40,7 +40,9 @@
     "expo-notifications": "~0.31.3",
     "expo-device": "~7.1.4",
     "expo-constants": "~17.1.6",
-    "expo-dev-client": "~5.2.1"
+    "expo-dev-client": "~5.2.1",
+    "expo-location": "~18.1.5",
+    "react-native-maps": "1.20.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -28,18 +28,24 @@ export interface Profile {
 }
 
 export interface RentalItem {
-    id: string;
-    title: string;
-    description: string;
-    price: number;
-    image_url?: string;
-    location: string;
-    category: string;
-    owner_id: string;
-    is_available?: boolean;
-    created_at: string;
-    updated_at: string;
-    owner?: Profile;
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  image_url?: string;
+  location: string;
+  latitude?: number;
+  longitude?: number;
+  address?: string;
+  available_from?: string;
+  available_to?: string;
+  pickup_method?: 'owner_delivery' | 'renter_pickup' | 'courier_supported';
+  category: string;
+  owner_id: string;
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
+  owner?: Profile;
 }
 
 export interface Booking {
