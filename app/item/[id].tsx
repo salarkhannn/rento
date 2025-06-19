@@ -6,7 +6,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
 
+import Constants from 'expo-constants';
+
 import DateTimePicker from '@react-native-community/datetimepicker'
+import { handleBookingRequest } from "@/lib/notificationQueries";
+import { NotificationTemplates, scheduleLocalNotification } from "@/lib/notifications";
 
 export default function ItemDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -19,6 +23,8 @@ export default function ItemDetailScreen() {
 
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
+
+    // console.log("EXECUTION ENVIRONMENT:", Constants.executionEnvironment);
 
     useEffect(() => {
         loadItem();
@@ -82,16 +88,42 @@ export default function ItemDetailScreen() {
     };
 
     const confirmBooking = async () => {
-        if (!item) return;
+        if (!item || !user) return;
+
+        console.log('Creating booking with:', {
+          item_id: item.id,
+          user_id: user.id,
+          start_date: startDate,
+          end_date: endDate
+        });
 
         setBookingLoading(true);
         try {
-            await createBooking({
+            const booking = await createBooking({
                 item_id: item.id,
+                renter_id: user.id,
                 start_date: startDate,
                 end_date: endDate,
                 total_price: calculateTotalPrice(),
             });
+
+            console.log('Booking created successfully:', booking);
+
+            // Send notification to item owner
+            await handleBookingRequest(booking.id, item.id, booking.renter_id);
+
+            // Show local notification to the user who made the booking
+            const template = NotificationTemplates.bookingRequest(item.title, user?.name || 'Someone');
+            await scheduleLocalNotification(
+                '🎉 Booking Request Sent!',
+                `Your booking request for "${item.title}" has been sent to the owner`,
+                2,
+                { 
+                    booking_id: booking.id, 
+                    item_id: item.id,
+                    action: 'booking_created'
+                }
+            );
 
             Alert.alert(
                 'Success',

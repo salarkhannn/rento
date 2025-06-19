@@ -4,6 +4,8 @@ import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert, Touchab
 import { Text, View } from '@/components/Themed';
 import { getMyBookings, updateBookingStatus } from '@/lib/queries';
 import { Booking } from '@/lib/supabase';
+import { handleBookingStatusChange } from '@/lib/notificationQueries';
+import { scheduleLocalNotification } from '@/lib/notifications';
 
 export default function BookingsScreen() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -53,15 +55,28 @@ export default function BookingsScreen() {
   };
 
   const cancelBooking = async (bookingId: string) => {
-    try {
-      await updateBookingStatus(bookingId, 'CANCELLED');
-      loadBookings(); // Refresh the list
-      Alert.alert('Success', 'Booking has been cancelled successfully.');
-    } catch (error) {
-      console.error('Error cancelling booking:', error);
-      Alert.alert('Error', 'Failed to cancel booking. Please try again later.');
-    }
-  }
+      try {
+          await updateBookingStatus(bookingId, 'CANCELLED');
+          await handleBookingStatusChange(bookingId, 'CANCELLED');
+
+          // Show local notification
+          await scheduleLocalNotification(
+              '🚫 Booking Cancelled',
+              'Your booking has been successfully cancelled',
+              1,
+              { 
+                  booking_id: bookingId,
+                  action: 'booking_cancelled'
+              }
+          );
+
+          loadBookings();
+          Alert.alert('Success', 'Booking has been cancelled successfully.');
+      } catch (error) {
+          console.error('Error cancelling booking:', error);
+          Alert.alert('Error', 'Failed to cancel booking. Please try again later.');
+      }
+  };
 
   const renderBooking = ({ item: booking }: { item: Booking }) => (
     <View style={styles.bookingCard}>
@@ -92,13 +107,6 @@ export default function BookingsScreen() {
           </TouchableOpacity>
         )}
       </View>
-      
-      {booking.message && (
-        <View style={styles.messageContainer}>
-          <Text style={styles.messageLabel}>Message:</Text>
-          <Text style={styles.messageText}>{booking.message}</Text>
-        </View>
-      )}
     </View>
   );
 

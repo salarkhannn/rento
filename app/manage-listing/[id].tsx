@@ -5,6 +5,8 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { getRentalItem, getListingBookings, updateBookingStatus, deleteRentalItem } from '@/lib/queries';
 import { RentalItem, Booking } from '@/lib/supabase';
+import { handleBookingStatusChange, handleListingDeletion } from '@/lib/notificationQueries';
+import { scheduleLocalNotification } from '@/lib/notifications';
 
 export default function ManageListingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,36 +38,66 @@ export default function ManageListingScreen() {
   };
 
   const handleApproveBooking = async (bookingId: string) => {
-    try {
-      await updateBookingStatus(bookingId, 'CONFIRMED');
-      loadData(); // Refresh data after approval
-      Alert.alert('Success', 'Booking approved successfully');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to approve booking');
-    }
+      try {
+          await updateBookingStatus(bookingId, 'CONFIRMED');
+          
+          // Send notification to database
+          await handleBookingStatusChange(bookingId, 'CONFIRMED');
+
+          // Show local notification for immediate feedback
+          await scheduleLocalNotification(
+              '✅ Booking Approved',
+              'You have successfully approved a booking request',
+              1,
+              { 
+                  booking_id: bookingId,
+                  action: 'booking_approved'
+              }
+          );
+
+          loadData();
+          Alert.alert('Success', 'Booking approved successfully');
+      } catch (error) {
+          console.error('Error approving booking:', error);
+          Alert.alert('Error', 'Failed to approve booking');
+      }
   };
 
   const handleRejectBooking = async (bookingId: string) => {
-    Alert.alert(
-      'Reject Booking',
-      'Are you sure you want to reject this booking?',
-      [
-        { text: 'Cancel' },
-        {
-          text: 'Reject',
-          onPress: async () => {
-            try {
-              await updateBookingStatus(bookingId, 'CANCELLED');
-              loadData(); // Refresh data after rejection
-              Alert.alert('Success', 'Booking rejected successfully');
-            } catch (error) {
-              Alert.alert('Error', 'Failed to reject booking');
-            }
-          }
-        }
-      ]
-    )
-  }
+      Alert.alert(
+          'Reject Booking',
+          'Are you sure you want to reject this booking?',
+          [
+              { text: 'Cancel' },
+              {
+                  text: 'Reject',
+                  onPress: async () => {
+                      try {
+                          await updateBookingStatus(bookingId, 'CANCELLED');
+                          await handleBookingStatusChange(bookingId, 'CANCELLED');
+
+                          // Show local notification
+                          await scheduleLocalNotification(
+                              '❌ Booking Rejected',
+                              'You have rejected a booking request',
+                              1,
+                              { 
+                                  booking_id: bookingId,
+                                  action: 'booking_rejected'
+                              }
+                          );
+
+                          loadData();
+                          Alert.alert('Success', 'Booking rejected successfully');
+                      } catch (error) {
+                          console.error('Error rejecting booking:', error);
+                          Alert.alert('Error', 'Failed to reject booking');
+                      }
+                  }
+              }
+          ]
+      );
+  };
 
   const handleEditListing = () => {
     router.push(`/edit-listing/${id}`);
@@ -87,28 +119,32 @@ export default function ManageListingScreen() {
   };
 
   const confirmDeleteListing = async () => {
-    try {
-      await deleteRentalItem(id!);
-      Alert.alert('Success', 'Listing deleted successfully', [
-        {
-          text: 'OK',
-          onPress: () => router.push('/my-listings')
-        }
-      ]);
-    } catch (error) {
-      console.error('Error deleting listing:', error);
-      Alert.alert('Error', 'Failed to delete listing');
-    }
-  }
+      try {
+          await handleListingDeletion(id!);
+          await deleteRentalItem(id!);
 
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2f95dc" />
-        <Text>Loading listing details...</Text>
-      </View>
-    );
-  }
+          // Show local notification
+          await scheduleLocalNotification(
+              '🗑️ Listing Deleted',
+              'Your listing has been successfully deleted',
+              1,
+              { 
+                  item_id: id!,
+                  action: 'listing_deleted'
+              }
+          );
+
+          Alert.alert('Success', 'Listing deleted successfully', [
+              {
+                  text: 'OK',
+                  onPress: () => router.push('/my-listings')
+              }
+          ]);
+      } catch (error) {
+          console.error('Error deleting listing:', error);
+          Alert.alert('Error', 'Failed to delete listing');
+      }
+  };
 
   if (!item) {
     return (
