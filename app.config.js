@@ -32,7 +32,7 @@ export default () => ({
             output: "static",
             favicon: "./assets/images/favicon.png"
         },
-        plugins: ["expo-router", "expo-notifications"],
+        plugins: ["expo-router", "expo-notifications", "expo-web-browser"],
         experiments: {
             typedRoutes: true
         },
