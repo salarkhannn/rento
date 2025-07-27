@@ -15,25 +15,24 @@ export default function AuthStartScreen() {
     try {
       console.log('AuthStart: Checking email:', email.toLowerCase());
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email.toLowerCase())
-        .single();
+        .rpc('check_user_exists', { input_email: email.toLowerCase().trim() });
 
       console.log('AuthStart: Supabase check result - data:', data, 'error:', error);
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
-        Alert.alert('Error', error.message);
+      if (error) {
+        console.error('AuthStart: Supabase RPC error:', error);
+        Alert.alert('Error', 'Unable to verify email.');
         return;
       }
-
-      if (data) {
+      
+      if (data === true) {
         console.log('AuthStart: Email exists, routing to login.');
         router.push({ pathname: '/auth/auth-login', params: { email } });
       } else {
         console.log('AuthStart: Email does not exist, routing to signup.');
         router.push({ pathname: '/auth/auth-signup', params: { email } });
       }
+
     } catch (error) {
       Alert.alert('Error', 'Something went wrong');
     } finally {
