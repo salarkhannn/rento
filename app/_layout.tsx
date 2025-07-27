@@ -130,9 +130,9 @@ function RootLayoutNav() {
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="create-item" options={{ title: 'Create Listing' }} />
         <Stack.Screen name="my-listings" options={{ title: 'My Listings' }} />
-        <Stack.Screen name="item" options={{ headerShown: false }} />
-        <Stack.Screen name="manage-listing" options={{ title: 'Manage Listing' }} />
-        <Stack.Screen name="edit-listing" options={{ title: 'Edit Listing' }} />
+        <Stack.Screen name="item/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="manage-listing/[id]" options={{ title: 'Manage Listing' }} />
+        <Stack.Screen name="edit-listing/[id]" options={{ title: 'Edit Listing' }} />
       </Stack>
     </ThemeProvider>
   );

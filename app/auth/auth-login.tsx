@@ -1,42 +1,35 @@
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
 
-export default function SignUpScreen() {
+export default function AuthLoginScreen() {
+  const { email: initialEmail } = useLocalSearchParams();
   const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (initialEmail) {
+      setEmail(initialEmail as string);
+    }
+  }, [initialEmail]);
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const signUp = async () => {
-    if (!email || !password || !name) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
-
+  const signIn = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          data: {
-            name,
-          },
-        },
       });
 
       if (error) {
         Alert.alert('Error', error.message);
       } else {
-        Alert.alert(
-          'Success',
-          'Account created! Please check your email to verify your account.',
-          [{ text: 'OK', onPress: () => router.replace('/auth/sign-in') }]
-        );
+        router.replace('/(tabs)');
       }
     } catch (error) {
       Alert.alert('Error', 'Something went wrong');
@@ -45,29 +38,16 @@ export default function SignUpScreen() {
     }
   };
 
-  const signIn = () => {
-    router.push('/auth/sign-in');
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.subtitle}>Join Rento today</Text>
+      <Text style={styles.title}>Welcome Back</Text>
+      <Text style={styles.subtitle}>Sign in to your account</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Full Name"
-        value={name}
-        onChangeText={setName}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
+        editable={true}
       />
 
       <TextInput
@@ -79,18 +59,18 @@ export default function SignUpScreen() {
       />
 
       <TouchableOpacity 
-        style={[styles.button, { opacity: loading ? 0.5 : 1 }]}
-        onPress={signUp}
+        style={[styles.button, { opacity: loading ? 0.5 : 1 }]} 
+        onPress={signIn}
         disabled={loading}
       >
         <Text style={styles.buttonText}>
-          {loading ? 'Creating Account...' : 'Sign Up'}
+          {loading ? 'Signing In...' : 'Sign In'}
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.linkButton} onPress={signIn}>
+      <TouchableOpacity style={styles.linkButton} onPress={() => Alert.alert('Forgot Password', 'This feature is not yet implemented.')}>
         <Text style={styles.linkText}>
-          Already have an account? Sign In
+          Forgot Password?
         </Text>
       </TouchableOpacity>
     </View>
