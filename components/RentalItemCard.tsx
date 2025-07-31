@@ -3,12 +3,15 @@ import { StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Text, View } from './Themed';
 import { RentalItem } from '@/lib/supabase';
+import { useAuth } from '@/lib/AuthContext';
 
 interface Props {
   item: RentalItem;
 }
 
 export function RentalItemCard({ item }: Props) {
+  const { mode } = useAuth();
+
   const handlePress = () => {
     router.push(`/item/${item.id}`);
   };
@@ -25,6 +28,14 @@ export function RentalItemCard({ item }: Props) {
         <View style={styles.footer}>
           <Text style={styles.price}>${item.price}/day</Text>
           <Text style={styles.owner}>by {item.owner?.name || 'Unknown'}</Text>
+          {/* Only show manage button for lenders */}
+          {mode === 'lender' && (
+            <TouchableOpacity
+              onPress={() => router.push(`/manage-listing/${item.id}`)}
+            >
+              <Text>Manage</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </TouchableOpacity>

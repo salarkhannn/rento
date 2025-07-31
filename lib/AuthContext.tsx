@@ -8,6 +8,9 @@ interface AuthContextType {
     loading: boolean;
     signOut: () => Promise<void>;
     isInitialized: boolean;
+    mode: string | null;
+    setMode: (mode: string) => void;
+    switchMode: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -16,6 +19,9 @@ const AuthContext = createContext<AuthContextType>({
     loading: false,
     signOut: async () => {},
     isInitialized: false,
+    mode: null,
+    setMode: () => {},
+    switchMode: async () => {},
 });
 
 export const useAuth = () => {
@@ -31,21 +37,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
+    const [mode, setMode] = useState<string | null>(null);
+
+    const fetchUserMode = async (userId: string) => {
+        const {data, error} = await supabase
+            .from('profiles')
+            .select('current_mode')
+            .eq('id', userId)
+            .single();
+        if (!error && data?.current_mode) {
+            setMode(data.current_mode);
+        } else {
+            setMode('renter'); // Default mode
+        }
+    }
 
     useEffect(() => {
         // Get initial session and user
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
             setSession(session);
             setUser(session?.user || null);
+            if (session?.user?.id) {
+                await fetchUserMode(session.user.id);
+            } else {
+                setMode(null);
+            }
             setLoading(false);
             setIsInitialized(true);
         });
 
         // Listen for auth state changes
         const { data: { subscription }} = supabase.auth.onAuthStateChange(
-            (_event, session) => {
+            async (_event, session) => {
                 setSession(session);
                 setUser(session?.user ?? null);
+                if (session?.user?.id) {
+                    await fetchUserMode(session.user.id);
+                } else {
+                    setMode(null);
+                }
                 setLoading(false);
                 setIsInitialized(true);
             }
@@ -65,8 +95,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const switchMode = async () => {
+        if (!user?.id || !mode) return;
+        const newMode = mode === 'renter' ? 'lender' : 'renter';
+        const { error } = await supabase
+            .from('profiles')
+            .update({ current_mode: newMode })
+            .eq('id', user.id);
+        if (!error) {
+            setMode(newMode);
+        } else {
+            console.error('Error switching mode:', error);
+        }
+    }
+
     return (
-        <AuthContext.Provider value={{ session, user, loading, signOut, isInitialized }}>
+        <AuthContext.Provider
+            value={{
+                session,
+                user,
+                loading,
+                signOut,
+                isInitialized,
+                mode,
+                setMode,
+                switchMode
+            }}>
             {children}
         </AuthContext.Provider>
     )

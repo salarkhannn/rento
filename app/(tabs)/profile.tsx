@@ -8,7 +8,7 @@ import { Profile } from '@/lib/supabase';
 import { router } from 'expo-router';
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, mode, switchMode, loading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
@@ -35,6 +35,12 @@ export default function ProfileScreen() {
     );
   };
 
+  const getSwitchLabel = () => {
+    if (mode === 'renter') return 'Switch to Lender Mode';
+    if (mode === 'lender') return 'Switch to Renter Mode';
+    return 'Switch Mode';
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -58,6 +64,13 @@ export default function ProfileScreen() {
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>
           <Text>Notifications</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.modeSwtichButton}
+          onPress={switchMode}
+          disabled={loading}
+        >
+          <Text style={styles.modeSwitchText}>{getSwitchLabel()}</Text>
         </TouchableOpacity>
       </View>
 
@@ -118,6 +131,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+  },
+  modeSwitchButton: {
+    marginTop: 16,
+    backgroundColor: '#1976D2',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  modeSwitchText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   signOutButton: {
     backgroundColor: '#FF5252',

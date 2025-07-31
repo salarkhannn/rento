@@ -13,6 +13,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { categories } from './utils/categories';
+import { ModeGuard } from './guards/ModeGuard';
 
 type PickupMethod = 'owner_delivery' | 'renter_pickup' | 'courier_supported';
 
@@ -155,105 +156,107 @@ export default function CreateItemScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.title}>List New Item</Text>
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Item Title *"
-          value={title}
-          onChangeText={setTitle}
-        />
-        
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Description *"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          numberOfLines={4}
-        />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Price per day (USD) *"
-          value={price}
-          onChangeText={setPrice}
-          keyboardType="numeric"
-        />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="General Location (e.g., City, Neighborhood) *"
-          value={location}
-          onChangeText={setLocation}
-        />
-        
-        <Text style={styles.label}>Category *</Text>
-        <View style={styles.categoryContainer}>
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              style={[
-                styles.categoryButton,
-                category === cat && styles.categoryButtonSelected
-              ]}
-              onPress={() => setCategory(cat)}
-            >
-              <Text style={[
-                styles.categoryText,
-                category === cat && styles.categoryTextSelected
-              ]}>
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <PickupLocationInput
-          onLocationChange={setPickupLocation}
-        />
-
-        <AvailabilityPicker
-          onDatesChange={setAvailability}
-        />
-
-        <PickupMethodSelector
-          onMethodChange={setPickupMethod}
-          initialMethod={pickupMethod}
-        />
-
-        <View style={styles.imageSection}>
-          <Text style={styles.label}>Photos</Text>
-          <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
-            {imageUri ? (
-              <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-            ): (
-              <View style={styles.imagePlaceholder}>
-                <Text style={styles.imagePlaceholderText}>+ Add Photo</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-        
-        <TouchableOpacity 
-          style={[styles.submitButton, { opacity: loading ? 0.5 : 1 }]}
-          onPress={handleSubmit}
-          disabled={loading}
+    <ModeGuard requiredMode='lender'>
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.submitButtonText}>
-            {loading ? 'Creating...' : 'Create Item'}
-          </Text>
-        </TouchableOpacity>
+          <Text style={styles.title}>List New Item</Text>
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Item Title *"
+            value={title}
+            onChangeText={setTitle}
+          />
+          
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Description *"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={4}
+          />
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Price per day (USD) *"
+            value={price}
+            onChangeText={setPrice}
+            keyboardType="numeric"
+          />
+          
+          <TextInput
+            style={styles.input}
+            placeholder="General Location (e.g., City, Neighborhood) *"
+            value={location}
+            onChangeText={setLocation}
+          />
+          
+          <Text style={styles.label}>Category *</Text>
+          <View style={styles.categoryContainer}>
+            {categories.map((cat) => (
+              <TouchableOpacity
+                key={cat}
+                style={[
+                  styles.categoryButton,
+                  category === cat && styles.categoryButtonSelected
+                ]}
+                onPress={() => setCategory(cat)}
+              >
+                <Text style={[
+                  styles.categoryText,
+                  category === cat && styles.categoryTextSelected
+                ]}>
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-    </SafeAreaView>
+          <PickupLocationInput
+            onLocationChange={setPickupLocation}
+          />
+
+          <AvailabilityPicker
+            onDatesChange={setAvailability}
+          />
+
+          <PickupMethodSelector
+            onMethodChange={setPickupMethod}
+            initialMethod={pickupMethod}
+          />
+
+          <View style={styles.imageSection}>
+            <Text style={styles.label}>Photos</Text>
+            <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+              {imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+              ): (
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.imagePlaceholderText}>+ Add Photo</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+          
+          <TouchableOpacity 
+            style={[styles.submitButton, { opacity: loading ? 0.5 : 1 }]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.submitButtonText}>
+              {loading ? 'Creating...' : 'Create Item'}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.bottomSpacer} />
+        </ScrollView>
+      </SafeAreaView>
+    </ModeGuard>
   );
 }
 

@@ -7,6 +7,7 @@ import { getRentalItem, getListingBookings, updateBookingStatus, deleteRentalIte
 import { RentalItem, Booking } from '@/lib/supabase';
 import { handleBookingStatusChange, handleListingDeletion } from '@/lib/notificationQueries';
 import { scheduleLocalNotification } from '@/lib/notifications';
+import { ModeGuard } from '../guards/ModeGuard';
 
 export default function ManageListingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -158,73 +159,75 @@ export default function ManageListingScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.price}>${item.price}/day</Text>
-      </View>
+    <ModeGuard requiredMode='lender'>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.price}>${item.price}/day</Text>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Listing Details</Text>
-        <Text style={styles.detail}>Category: {item.category}</Text>
-        <Text style={styles.detail}>Location: {item.location}</Text>
-        <Text style={styles.detail}>Status: {item.is_available ? 'Available' : 'Unavailable'}</Text>
-      </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Listing Details</Text>
+          <Text style={styles.detail}>Category: {item.category}</Text>
+          <Text style={styles.detail}>Location: {item.location}</Text>
+          <Text style={styles.detail}>Status: {item.is_available ? 'Available' : 'Unavailable'}</Text>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Booking Requests ({bookings.length})</Text>
-        {bookings.length === 0 ? (
-          <Text style={styles.emptyText}>No booking requests yet</Text>
-        ) : (
-          bookings.map((booking) => (
-            <View key={booking.id} style={styles.bookingCard}>
-              <Text style={styles.bookingTitle}>
-                {booking.renter?.name || 'Unknown User'}
-              </Text>
-              <Text style={styles.bookingDates}>
-                {booking.start_date} → {booking.end_date}
-              </Text>
-              <Text style={styles.bookingPrice}>
-                Total: ${booking.total_price}
-              </Text>
-              <Text style={[styles.bookingStatus, { color: getStatusColor(booking.status) }]}>
-                Status: {booking.status}
-              </Text>
-              {booking.status === 'PENDING' && (
-                <View>
-                  <TouchableOpacity
-                    onPress={() => handleApproveBooking(booking.id)}
-                  >
-                    <Text>Approve</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleRejectBooking(booking.id)}
-                  >
-                    <Text>Reject</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          ))
-        )}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Booking Requests ({bookings.length})</Text>
+          {bookings.length === 0 ? (
+            <Text style={styles.emptyText}>No booking requests yet</Text>
+          ) : (
+            bookings.map((booking) => (
+              <View key={booking.id} style={styles.bookingCard}>
+                <Text style={styles.bookingTitle}>
+                  {booking.renter?.name || 'Unknown User'}
+                </Text>
+                <Text style={styles.bookingDates}>
+                  {booking.start_date} → {booking.end_date}
+                </Text>
+                <Text style={styles.bookingPrice}>
+                  Total: ${booking.total_price}
+                </Text>
+                <Text style={[styles.bookingStatus, { color: getStatusColor(booking.status) }]}>
+                  Status: {booking.status}
+                </Text>
+                {booking.status === 'PENDING' && (
+                  <View>
+                    <TouchableOpacity
+                      onPress={() => handleApproveBooking(booking.id)}
+                    >
+                      <Text>Approve</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleRejectBooking(booking.id)}
+                    >
+                      <Text>Reject</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))
+          )}
 
-      </View>
+        </View>
 
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={handleEditListing}
-        >
-          <Text style={styles.buttonText}>Edit Listing</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={handleDeleteListing}
-        >
-          <Text style={styles.buttonText}>Delete Listing</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={handleEditListing}
+          >
+            <Text style={styles.buttonText}>Edit Listing</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDeleteListing}
+          >
+            <Text style={styles.buttonText}>Delete Listing</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </ModeGuard>
   );
 }
 

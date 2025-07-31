@@ -9,8 +9,15 @@ import { supabase } from '@/lib/supabase';
 export default function AuthStartScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const checkEmail = async () => {
+    if (!email.trim()) {
+      setError('Please enter a valid email address.');
+      return;
+    } else {
+      setError('');
+    }
     setLoading(true);
     try {
       console.log('AuthStart: Checking email:', email.toLowerCase());
@@ -53,6 +60,7 @@ export default function AuthStartScreen() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+      {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
 
       <TouchableOpacity 
         style={[styles.button, { opacity: loading ? 0.5 : 1 }]}
@@ -65,9 +73,6 @@ export default function AuthStartScreen() {
       </TouchableOpacity>
 
       <View style={styles.socialButtonsContainer}>
-        <TouchableOpacity style={styles.socialButton} disabled>
-          <Text style={styles.socialButtonText}>Continue with Phone</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.socialButton} disabled>
           <Text style={styles.socialButtonText}>Continue with Facebook</Text>
         </TouchableOpacity>
