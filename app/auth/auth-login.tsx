@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
+import CustomTextInput from '@/ui/components/InputField';
 
 export default function AuthLoginScreen() {
   const { email: initialEmail } = useLocalSearchParams();
@@ -43,19 +44,22 @@ export default function AuthLoginScreen() {
       <Text style={styles.title}>Welcome Back</Text>
       <Text style={styles.subtitle}>Sign in to your account</Text>
 
-      <TextInput
-        style={styles.input}
+      <CustomTextInput
+        title='Email'
         value={email}
         onChangeText={setEmail}
         editable={true}
+        containerStyle={{ width: '100%', marginBottom: 0 }}
+        placeholder="Email"
       />
 
-      <TextInput
-        style={styles.input}
+      <CustomTextInput
+        title='Password'
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        containerStyle={{ width: '100%', marginBottom: 0 }}
       />
 
       <TouchableOpacity 
@@ -82,6 +86,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
@@ -95,19 +100,13 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 40,
   },
-  input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-    fontSize: 16,
-  },
   button: {
     backgroundColor: '#2f95dc',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 15,
+    width: '100%',
   },
   buttonText: {
     color: 'white',

@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
+import CustomTextInput from '@/ui/components/InputField';
 
 export default function AuthSignUpScreen() {
   const { email: initialEmail } = useLocalSearchParams();
@@ -59,28 +60,31 @@ export default function AuthSignUpScreen() {
       <Text style={styles.title}>Create Account</Text>
       <Text style={styles.subtitle}>Join Rento today</Text>
 
-      <TextInput
-        style={styles.input}
+      <CustomTextInput
+        title='Email'
         value={email}
         editable={false}
+        containerStyle={{ width: '100%', marginBottom: 15 }}
       />
 
-      <TextInput
-        style={styles.input}
+      <CustomTextInput
+        title='First Name'
         placeholder="First Name"
         value={firstName}
         onChangeText={setFirstName}
+        containerStyle={{ width: '100%', marginBottom: 15 }}
       />
 
-      <TextInput
-        style={styles.input}
+      <CustomTextInput
+        title='Last Name'
         placeholder="Last Name"
         value={lastName}
         onChangeText={setLastName}
+        containerStyle={{ width: '100%', marginBottom: 15 }}
       />
 
       <TouchableOpacity
-        style={styles.input}
+        style={[styles.input, { justifyContent: 'center' }]}
         onPress={() => setShowDatePicker(true)}
       >
         <Text style={dob ? styles.dateText : styles.placeholderText}>
@@ -102,12 +106,13 @@ export default function AuthSignUpScreen() {
         />
       )}
 
-      <TextInput
-        style={styles.input}
+      <CustomTextInput
+        title='Password'
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        containerStyle={{ width: '100%', marginBottom: 15 }}
       />
 
       <Text style={styles.termsText}>
@@ -132,6 +137,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
@@ -151,6 +157,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 15,
     fontSize: 16,
+    width: '100%',
   },
   button: {
     backgroundColor: '#2f95dc',
@@ -158,6 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 15,
+    width: '100%',
   },
   buttonText: {
     color: 'white',
