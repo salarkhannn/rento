@@ -5,6 +5,7 @@ import { Text, View } from '@/components/Themed';
 import { RentalItemCard } from '@/components/RentalItemCard';
 import { getCategories, getRentalItems } from '@/lib/queries';
 import { Category, RentalItem } from '@/lib/supabase';
+import { ModeGuard } from '../guards/ModeGuard';
 
 export default function BrowseScreen() {
   const [items, setItems] = useState<RentalItem[]>([]);
@@ -74,62 +75,64 @@ export default function BrowseScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search items..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          returnKeyType='search'
+    <ModeGuard requiredMode='renter'>
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search items..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType='search'
+          />
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoryFilter}
+          contentContainerStyle={styles.categoryFilterContent}
+        >
+          {categories.map(category => (
+            <TouchableOpacity
+              key={category.id}
+              style={[
+                styles.categoryButton,
+                selectedCategory === category.name && styles.categoryButtonSelected
+              ]}
+              onPress={() => setSelectedCategory(category.name)}
+            >
+              <Text style={[
+                styles.categoryButtonText,
+                selectedCategory === category.name && styles.categoryButtonTextSelected
+              ]}>
+                {category.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <FlatList
+          data={filteredItems}
+          renderItem={({ item }) => <RentalItemCard item={item} />}
+          keyExtractor={(item)=> item.id}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                {selectedCategory === 'All'
+                  ? 'No items available'
+                  : `No items found in "${selectedCategory.toLowerCase()}" category`
+                }
+              </Text>
+              <Text style={styles.emptySubtext}>Check back later for new rentals!</Text>
+            </View>
+          }
         />
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoryFilter}
-        contentContainerStyle={styles.categoryFilterContent}
-      >
-        {categories.map(category => (
-          <TouchableOpacity
-            key={category.id}
-            style={[
-              styles.categoryButton,
-              selectedCategory === category.name && styles.categoryButtonSelected
-            ]}
-            onPress={() => setSelectedCategory(category.name)}
-          >
-            <Text style={[
-              styles.categoryButtonText,
-              selectedCategory === category.name && styles.categoryButtonTextSelected
-            ]}>
-              {category.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      <FlatList
-        data={filteredItems}
-        renderItem={({ item }) => <RentalItemCard item={item} />}
-        keyExtractor={(item)=> item.id}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              {selectedCategory === 'All'
-                ? 'No items available'
-                : `No items found in "${selectedCategory.toLowerCase()}" category`
-              }
-            </Text>
-            <Text style={styles.emptySubtext}>Check back later for new rentals!</Text>
-          </View>
-        }
-      />
-    </View>
+    </ModeGuard>
   );
 }
 

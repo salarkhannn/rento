@@ -4,6 +4,7 @@ import { RentalItem } from "@/lib/supabase";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from "react-native";
+import { ModeGuard } from "./guards/ModeGuard";
 
 export default function MyListingsScreen() {
     const [listings, setListings] = useState<RentalItem[]>([]);
@@ -66,6 +67,7 @@ export default function MyListingsScreen() {
     );
 
     return (
+      <ModeGuard requiredMode="lender">
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>My Listings</Text>
@@ -101,6 +103,7 @@ export default function MyListingsScreen() {
                 }
             />
         </View>
+      </ModeGuard>
     )
 }
 

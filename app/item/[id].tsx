@@ -14,7 +14,7 @@ import { NotificationTemplates, scheduleLocalNotification } from "@/lib/notifica
 
 export default function ItemDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { user } = useAuth();
+    const { user, mode } = useAuth();
     const [item, setItem] = useState<RentalItem | null>(null);
     const [loading, setLoading] = useState(true);
     const [bookingLoading, setBookingLoading] = useState(false);
@@ -186,7 +186,7 @@ export default function ItemDetailScreen() {
                 <Text style={styles.sectionTitle}>Description</Text>
                 <Text style={styles.description}>{item.description}</Text>
 
-                {item.is_available && user?.id !== item.owner_id && (
+                {item.is_available && user?.id !== item.owner_id && mode === 'renter' && (
                     <View style={styles.bookingSection}>
                         <Text style={styles.sectionTitle}>Book this item</Text>
 

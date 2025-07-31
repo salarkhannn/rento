@@ -6,6 +6,7 @@ import { getMyBookings, updateBookingStatus } from '@/lib/queries';
 import { Booking } from '@/lib/supabase';
 import { handleBookingStatusChange } from '@/lib/notificationQueries';
 import { scheduleLocalNotification } from '@/lib/notifications';
+import { ModeGuard } from '../guards/ModeGuard';
 
 export default function BookingsScreen() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -120,29 +121,31 @@ export default function BookingsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>My Bookings</Text>
-        <Text style={styles.subtitle}>{bookings.length} booking(s)</Text>
+    <ModeGuard requiredMode='renter'>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>My Bookings</Text>
+          <Text style={styles.subtitle}>{bookings.length} booking(s)</Text>
+        </View>
+        
+        <FlatList
+          data={bookings}
+          renderItem={renderBooking}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyIcon}>📋</Text>
+              <Text style={styles.emptyText}>No bookings yet</Text>
+              <Text style={styles.emptySubtext}>Browse items to make your first booking!</Text>
+            </View>
+          }
+        />
       </View>
-      
-      <FlatList
-        data={bookings}
-        renderItem={renderBooking}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>📋</Text>
-            <Text style={styles.emptyText}>No bookings yet</Text>
-            <Text style={styles.emptySubtext}>Browse items to make your first booking!</Text>
-          </View>
-        }
-      />
-    </View>
+    </ModeGuard>
   );
 }
 
