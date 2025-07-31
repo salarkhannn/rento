@@ -9,7 +9,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (isInitialized && !loading && !session) {
-            console.log('AuthGaurd: Redirecting to sign-in');
             router.replace('/auth/auth-start');
         }
     }, [isInitialized, loading, session]);

@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Text, View } from './Themed';
 import { RentalItem } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 interface Props {
   item: RentalItem;
@@ -22,7 +23,13 @@ export function RentalItemCard({ item }: Props) {
         <Image source={{ uri: item.image_url }} style={styles.image} />
       )}
       <View style={styles.content}>
-        <Text style={styles.title}>{item.title}</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.title}>{item.title}</Text>
+          {/* Wishlist icon button (UI only for now) */}
+          <TouchableOpacity style={styles.wishlistButton}>
+            <FontAwesome name="heart-o" size={22} color="#FF5252" />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.location}>{item.location}</Text>
         <Text style={styles.category}>{item.category}</Text>
         <View style={styles.footer}>
@@ -64,10 +71,21 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  wishlistButton: {
+    padding: 4,
+  },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 0,
+    flex: 1,
+    marginRight: 8,
   },
   location: {
     fontSize: 14,

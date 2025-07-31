@@ -20,11 +20,8 @@ export default function AuthStartScreen() {
     }
     setLoading(true);
     try {
-      console.log('AuthStart: Checking email:', email.toLowerCase());
       const { data, error } = await supabase
         .rpc('check_user_exists', { input_email: email.toLowerCase().trim() });
-
-      console.log('AuthStart: Supabase check result - data:', data, 'error:', error);
 
       if (error) {
         console.error('AuthStart: Supabase RPC error:', error);
@@ -33,10 +30,8 @@ export default function AuthStartScreen() {
       }
       
       if (data === true) {
-        console.log('AuthStart: Email exists, routing to login.');
         router.push({ pathname: '/auth/auth-login', params: { email } });
       } else {
-        console.log('AuthStart: Email does not exist, routing to signup.');
         router.push({ pathname: '/auth/auth-signup', params: { email } });
       }
 

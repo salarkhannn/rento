@@ -133,20 +133,34 @@ export const getMyListings = async (): Promise<RentalItem[]> => {
     return data || [];
 }
 
-export const getListingBookings = async (itemId: string): Promise<Booking[]> => {
-    const { data, error } = await supabase
+
+export const getLenderBookings = async (lenderId: string): Promise<Booking[]> => {
+    const { data: items, error: itemsError } = await supabase
+        .from('rental_items')
+        .select('id')
+        .eq('owner_id', lenderId);
+
+    if (itemsError) throw itemsError;
+    if (!items || items.length === 0) return [];
+
+    const itemIds = items.map(item => item.id);
+
+    const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
-        .select(`
+        .select(
+            `
             *,
             renter:profiles(*),
             item:rental_items(*)
-        `)
-        .eq('item_id', itemId)
+        `
+        )
+        .in('item_id', itemIds)
         .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data || [];
-}
+    if (bookingsError) throw bookingsError;
+    return bookings || [];
+};
+
 
 export const updateRentalItem = async (itemId: string, updates: Partial<RentalItem>) => {
     const { error } = await supabase

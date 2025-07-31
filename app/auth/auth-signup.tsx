@@ -24,7 +24,6 @@ export default function AuthSignUpScreen() {
     }
 
     setLoading(true);
-    console.log('AuthSignUp: Attempting to sign up with email:', email, 'firstName:', firstName, 'lastName:', lastName, 'dob:', dob);
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -42,7 +41,6 @@ export default function AuthSignUpScreen() {
         console.error('AuthSignUp: Supabase signUp error:', error);
         Alert.alert('Error', error.message);
       } else {
-        console.log('AuthSignUp: Supabase signUp successful.');
         Alert.alert(
           'Success',
           'Account created! Please check your email to verify your account.',
