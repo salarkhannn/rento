@@ -18,7 +18,7 @@ export const ModeGuard: React.FC<ModeGuardProps> = ({ requiredMode, children }) 
             if (mode === 'renter') {
                 router.push('/');
             } else if (mode === 'lender') {
-                router.push('/my-listings');
+                router.push('/dashboard');
             }
         }
     }, [mode, loading, isInitialized, requiredMode]);

@@ -75,85 +75,80 @@ export default function TabLayout() {
           headerShown: useClientOnlyValue(false, true),
           headerRight: () => <NotificationsIcon />,
         }}>
-        {mode === 'renter' && (
-          <>
-            <Tabs.Screen
-              name="index"
-              options={{
-                title: 'Explore',
-                tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
-              }}
-            />
-            <Tabs.Screen
-              name="wishlist"
-              options={{
-                title: 'Wishlist',
-                tabBarIcon: ({ color }) => <TabBarIcon name='heart' color={color} />,
-              }}
-            />
-            <Tabs.Screen
-              name="bookings"
-              options={{
-                title: 'Bookings',
-                tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
-              }}
-            />
-            <Tabs.Screen
-              name='messages'
-              options={{
-                title: 'Messages',
-                tabBarIcon: ({ color }) => <TabBarIcon name="envelope" color={color} />,
-              }}
-            />
-          </>
-        )}
-        {mode === 'lender' && (
-          <>
-            <Tabs.Screen
-              name="dashboard"
-              options={{
-                title: 'Dashboard',
-                tabBarIcon: ({ color }) => <TabBarIcon name="tachometer" color={color} />,
-              }}
-            />
-            <Tabs.Screen
-              name="my-listings"
-              options={{
-                title: 'Listings',
-                tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
-                headerRight: () => (
-                  <Link href="/create-item" asChild>
-                    <Pressable>
-                      {({ pressed }) => (
-                        <FontAwesome
-                          name="plus"
-                          size={25}
-                          color={Colors[colorScheme ?? 'light'].text}
-                          style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                        />
-                      )}
-                    </Pressable>
-                  </Link>
-                ),
-              }}
-            />
-            <Tabs.Screen
-              name='lender-bookings'
-              options={{
-                title: 'Bookings',
-                tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
-              }}
-            />
-            <Tabs.Screen
-              name='messages'
-              options={{
-                title: 'Messages',
-                tabBarIcon: ({ color }) => <TabBarIcon name="envelope" color={color} />,
-              }}
-            />
-          </>
-        )}
-        {/* Profile tab is always shown */}
+        {/* Renter Tabs */}
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Explore',
+            tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+            href: mode === 'renter' ? '/' : null,
+          }}
+        />
+        <Tabs.Screen
+          name="wishlist"
+          options={{
+            title: 'Wishlist',
+            tabBarIcon: ({ color }) => <TabBarIcon name="heart" color={color} />,
+            href: mode === 'renter' ? '/wishlist' : null,
+          }}
+        />
+        <Tabs.Screen
+          name="bookings"
+          options={{
+            title: 'Bookings',
+            tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+            href: mode === 'renter' ? '/bookings' : null,
+          }}
+        />
+
+        {/* Lender Tabs */}
+        <Tabs.Screen
+          name="dashboard"
+          options={{
+            title: 'Dashboard',
+            tabBarIcon: ({ color }) => <TabBarIcon name="tachometer" color={color} />,
+            href: mode === 'lender' ? '/dashboard' : null,
+          }}
+        />
+        <Tabs.Screen
+          name="my-listings"
+          options={{
+            title: 'Listings',
+            tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+            href: mode === 'lender' ? '/my-listings' : null,
+            headerRight: () => (
+              <Link href="/create-item" asChild>
+                <Pressable>
+                  {({ pressed }) => (
+                    <FontAwesome
+                      name="plus"
+                      size={25}
+                      color={Colors[colorScheme ?? 'light'].text}
+                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              </Link>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="lender-bookings"
+          options={{
+            title: 'Bookings',
+            tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+            href: mode === 'lender' ? '/lender-bookings' : null,
+          }}
+        />
+
+        {/* Common Tabs */}
+        <Tabs.Screen
+          name="messages"
+          options={{
+            title: 'Messages',
+            tabBarIcon: ({ color }) => <TabBarIcon name="envelope" color={color} />,
+          }}
+        />
         <Tabs.Screen
           name="profile"
           options={{

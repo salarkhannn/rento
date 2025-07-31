@@ -66,7 +66,7 @@ export default function ProfileScreen() {
           <Text>Notifications</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.modeSwtichButton}
+          style={styles.modeSwitchButton}
           onPress={switchMode}
           disabled={loading}
         >
