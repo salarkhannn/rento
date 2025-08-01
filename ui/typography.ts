@@ -34,12 +34,7 @@ export const typography: Record<string, TypographyStyle> = {
     fontSize: 28,
     lineHeight: 34,
   },
-  title1Medium: {
-    fontFamily: baseFont,
-    fontWeight: '500',
-    fontSize: 28,
-    lineHeight: 34,
-  },
+  title1Medium: { fontFamily: baseFont, fontWeight: '600', fontSize: 28, lineHeight: 34},
   title1Emphasized: {
     fontFamily: baseFont,
     fontWeight: '600',
@@ -55,7 +50,7 @@ export const typography: Record<string, TypographyStyle> = {
   title3Emphasized: { fontFamily: baseFont, fontWeight: '600', fontSize: 20, lineHeight: 25 },
 
   headlineSemibold: { fontFamily: baseFont, fontWeight: '600', fontSize: 17, lineHeight: 22 },
-  headlineMedium: { fontFamily: baseFont, fontWeight: '500', fontSize: 17, lineHeight: 22 },
+  headlineMedium: { fontFamily: baseFont, fontWeight: '500', fontSize: 17, lineHeight: 22, letterSpacing: -0.06 * 17 },
   headlineItalic: { fontFamily: baseFont, fontStyle: 'italic', fontSize: 17, lineHeight: 22 },
 
   bodyRegular: { fontFamily: baseFont, fontWeight: '400', fontSize: 15, lineHeight: 15 },

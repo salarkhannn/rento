@@ -7,6 +7,7 @@ import { Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
 import CustomTextInput from '@/ui/components/InputField';
 import CustomButton from '@/ui/components/Button';
+import { typography } from '@/ui/typography';
 
 export default function AuthStartScreen() {
   const [email, setEmail] = useState('');
@@ -46,7 +47,7 @@ export default function AuthStartScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Rento</Text>
+      <Text style={typography.title1Medium}>Welcome to Rento</Text>
 
       <CustomTextInput
         title='Email'
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 35,
     alignItems: 'center',
     backgroundColor: '#F7F7F7'
   },

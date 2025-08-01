@@ -104,7 +104,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 
   // Get background color based on variant
   const getBackgroundColor = (): string => {
-    if (disabled) return '#F0F0F0';
+    if (disabled) return '#F7F7F7';
     
     switch (variant) {
       case 'filled':
@@ -114,7 +114,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       case 'bordered':
       case 'plain':
       default:
-        return 'transparent';
+        return '#F7F7F7';
     }
   };
 

@@ -1,20 +1,20 @@
-
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { StyleSheet, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
 import CustomTextInput from '@/ui/components/InputField';
+import CustomButton from '@/ui/components/Button';
+import DatePickerField from '@/ui/components/DatePickerField';
+import { typography } from '@/ui/typography';
 
 export default function AuthSignUpScreen() {
   const { email: initialEmail } = useLocalSearchParams();
-  const [email] = useState(initialEmail as string || '');
+  const [email] = useState((initialEmail as string) || '');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [dob, setDob] = useState(''); // YYYY-MM-DD format
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -57,77 +57,64 @@ export default function AuthSignUpScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.subtitle}>Join Rento today</Text>
+      <View style={styles.content}>
+        <Text style={typography.title1Medium}>Finish signing up</Text>
 
-      <CustomTextInput
-        title='Email'
-        value={email}
-        editable={false}
-        containerStyle={{ width: '100%', marginBottom: 15 }}
-      />
+        <View style={styles.section}>
+          <Text style={typography.headlineMedium}>Enter your name</Text>
+          <CustomTextInput
+            placeholder="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+            containerStyle={{ width: '100%' }}
+          />
+          <CustomTextInput
+            placeholder="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+            containerStyle={{ width: '100%' }}
+          />
+          <Text style={styles.helperText}>
+            Make sure this matches the name on your government ID.
+          </Text>
+        </View>
 
-      <CustomTextInput
-        title='First Name'
-        placeholder="First Name"
-        value={firstName}
-        onChangeText={setFirstName}
-        containerStyle={{ width: '100%', marginBottom: 15 }}
-      />
+        <View style={styles.section}>
+          <Text style={typography.headlineMedium}>Date of birth</Text>
+          <DatePickerField
+            value={dob}
+            onDateChange={setDob}
+            placeholder="YYYY-MM-DD"
+            containerStyle={{ width: '100%' }}
+          />
+        </View>
 
-      <CustomTextInput
-        title='Last Name'
-        placeholder="Last Name"
-        value={lastName}
-        onChangeText={setLastName}
-        containerStyle={{ width: '100%', marginBottom: 15 }}
-      />
+        <View style={styles.section}>
+          <Text style={typography.headlineMedium}>Password</Text>
+          <CustomTextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            containerStyle={{ width: '100%' }}
+          />
+        </View>
 
-      <TouchableOpacity
-        style={[styles.input, { justifyContent: 'center' }]}
-        onPress={() => setShowDatePicker(true)}
-      >
-        <Text style={dob ? styles.dateText : styles.placeholderText}>
-          {dob || "Date of Birth (YYYY-MM-DD)"}
+        <Text style={{...typography.caption1Regular, textAlign: 'left' }}>
+          By selecting Agree and continue, I agree to rento’s Terms of Services, Payments Terms of Service, and acknowledge the Privacy Policy
         </Text>
-      </TouchableOpacity>
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={dob ? new Date(dob) : new Date()}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) {
-              setDob(selectedDate.toISOString().split('T')[0]);
-            }
-          }}
+        <CustomButton
+          title="Agree and Continue"
+          onPress={signUp}
+          disabled={loading}
+          loading={loading}
+          size="medium"
+          variant="filled"
+          color="colored"
+          style={{ width: '100%' }}
         />
-      )}
-
-      <CustomTextInput
-        title='Password'
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        containerStyle={{ width: '100%', marginBottom: 15 }}
-      />
-
-      <Text style={styles.termsText}>
-        By clicking "Agree and Continue", you agree to our Terms of Service, Payment Terms, and Privacy Policy.
-      </Text>
-
-      <TouchableOpacity 
-        style={[styles.button, { opacity: loading ? 0.5 : 1 }]} 
-        onPress={signUp}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? 'Creating Account...' : 'Agree and Continue'}
-        </Text>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -135,55 +122,46 @@ export default function AuthSignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    alignItems: 'center',
+    backgroundColor: '#F7F7F7',
+    paddingHorizontal: 29,
+    justifyContent: 'center', // Center vertically
+    alignItems: 'center',     // Center horizontally
+  },
+  content: {
+    backgroundColor: "#F7F7F7",
+    width: '100%',            // Ensure content does not shrink
+    maxWidth: 500,            // Optional: limit max width for larger screens
+    alignItems: 'stretch',    // Stretch children to container width
+    gap: 18,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
+    fontSize: 28,
+    fontFamily: 'SF Pro',
+    fontWeight: '500',
+    color: '#141414',
+    alignSelf: 'stretch',
   },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#666',
-    marginBottom: 40,
+  section: {
+    backgroundColor: '#F7F7F7',
+    alignSelf: 'stretch',
+    gap: 6,
   },
-  input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-    fontSize: 16,
-    width: '100%',
+  sectionTitle: {
+    fontSize: 17,
+    fontFamily: 'SF Pro',
+    fontWeight: '500',
+    color: '#141414',
+    alignSelf: 'stretch',
   },
-  button: {
-    backgroundColor: '#2f95dc',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 15,
-    width: '100%',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+  helperText: {
+    fontSize: 12,
+    fontFamily: 'SF Pro',
+    color: 'rgba(60,60,67,0.6)',
+    alignSelf: 'stretch',
   },
   termsText: {
     fontSize: 12,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 20,
-  },
-  dateText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  placeholderText: {
-    fontSize: 16,
-    color: '#c7c7cd',
   },
 });

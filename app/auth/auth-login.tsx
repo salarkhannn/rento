@@ -1,11 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
 import CustomTextInput from '@/ui/components/InputField';
+import CustomButton from '@/ui/components/Button';
+import { typography } from '@/ui/typography';
 
 export default function AuthLoginScreen() {
   const { email: initialEmail } = useLocalSearchParams();
@@ -41,15 +43,14 @@ export default function AuthLoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>Sign in to your account</Text>
+      <Text style={{...typography.title1Medium, textAlign: 'left'}}>Welcome back to rento!</Text>
 
       <CustomTextInput
         title='Email'
         value={email}
         onChangeText={setEmail}
         editable={true}
-        containerStyle={{ width: '100%', marginBottom: 0 }}
+        containerStyle={{ width: '100%' }}
         placeholder="Email"
       />
 
@@ -59,24 +60,19 @@ export default function AuthLoginScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        containerStyle={{ width: '100%', marginBottom: 0 }}
+        containerStyle={{ width: '100%' }}
       />
 
-      <TouchableOpacity 
-        style={[styles.button, { opacity: loading ? 0.5 : 1 }]} 
+      <CustomButton
+        title="Sign In"
         onPress={signIn}
         disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? 'Signing In...' : 'Sign In'}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.linkButton} onPress={() => Alert.alert('Forgot Password', 'This feature is not yet implemented.')}>
-        <Text style={styles.linkText}>
-          Forgot Password?
-        </Text>
-      </TouchableOpacity>
+        loading={loading}
+        size="medium"
+        variant="filled"
+        color="colored"
+        style={{ width: '100%' }}
+      />
     </View>
   );
 }
@@ -85,39 +81,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 35,
     alignItems: 'center',
+    backgroundColor: '#F7F7F7',
+    gap: 11,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'SF Pro',
+    fontSize: 28,
+    letterSpacing: 0,
+    fontWeight: 'medium',
     textAlign: 'center',
-    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
     color: '#666',
-    marginBottom: 40,
-  },
-  button: {
-    backgroundColor: '#2f95dc',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 15,
-    width: '100%',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  linkButton: {
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#2f95dc',
-    fontSize: 16,
   },
 });

@@ -1,22 +1,20 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
-  TextInput, 
-  Image, 
+  TouchableOpacity, 
   StyleSheet, 
   ViewStyle, 
   TextStyle,
-  TextInputProps,
-  NativeSyntheticEvent,
-  TextInputFocusEventData
+  Image
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-interface CustomTextInputProps extends Omit<TextInputProps, 'style' | 'onChangeText'> {
+interface DatePickerFieldProps {
   title?: string;
   placeholder?: string;
   value?: string;
-  onChangeText?: (text: string) => void;
+  onDateChange: (date: string) => void;
   leftIcon?: string | React.ReactNode;
   helperText?: string;
   errorMessage?: string;
@@ -26,16 +24,13 @@ interface CustomTextInputProps extends Omit<TextInputProps, 'style' | 'onChangeT
   inputStyle?: TextStyle;
   titleStyle?: TextStyle;
   helperTextStyle?: TextStyle;
-  showCursor?: boolean;
-  onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
-  onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
 }
 
-const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
+const DatePickerField: React.FC<DatePickerFieldProps> = ({
   title,
-  placeholder = "Placeholder",
+  placeholder = "Select a date",
   value = "",
-  onChangeText,
+  onDateChange,
   leftIcon,
   helperText,
   errorMessage,
@@ -45,43 +40,22 @@ const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
   inputStyle,
   titleStyle,
   helperTextStyle,
-  showCursor = true,
-  autoFocus = false,
-  secureTextEntry = false,
-  keyboardType = "default",
-  maxLength,
-  multiline = false,
-  numberOfLines = 1,
-  onFocus,
-  onBlur,
   testID,
-  ...props
-}, ref) => {
-  const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [internalValue, setInternalValue] = useState<string>(value);
+}) => {
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
   const hasError: boolean = Boolean(errorMessage);
-  const hasValue: boolean = Boolean(internalValue);
-  const isActive: boolean = isFocused || hasValue;
+  const hasValue: boolean = Boolean(value);
 
-  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>): void => {
-    setIsFocused(true);
-    onFocus?.(e);
-  };
-
-  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>): void => {
-    setIsFocused(false);
-    onBlur?.(e);
-  };
-
-  const handleChangeText = (text: string): void => {
-    setInternalValue(text);
-    onChangeText?.(text);
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      onDateChange(selectedDate.toISOString().split('T')[0]);
+    }
   };
 
   const getBorderColor = (): string => {
     if (hasError) return '#FF3B30';
-    if (isFocused) return '#000000';
     return 'rgba(60,60,67,0.6)';
   };
 
@@ -103,12 +77,16 @@ const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
         <Text style={[styles.title, titleStyle]}>{title}</Text>
       )}
       
-      <View style={[
-        styles.inputContainer,
-        { borderColor: getBorderColor() },
-        disabled && styles.disabled,
-        style
-      ]}>
+      <TouchableOpacity
+        onPress={() => !disabled && setShowDatePicker(true)}
+        style={[
+          styles.inputContainer,
+          { borderColor: getBorderColor() },
+          disabled && styles.disabled,
+          style
+        ]}
+        activeOpacity={0.7}
+      >
         {leftIcon && (
           <View style={styles.iconContainer}>
             {typeof leftIcon === 'string' ? (
@@ -119,31 +97,10 @@ const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
           </View>
         )}
         
-        <TextInput
-          ref={ref}
-          style={[
-            styles.input,
-            { color: getTextColor() },
-            inputStyle
-          ]}
-          value={internalValue}
-          onChangeText={handleChangeText}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder={placeholder}
-          placeholderTextColor="rgba(60,60,67,0.6)"
-          editable={!disabled}
-          autoFocus={autoFocus}
-          secureTextEntry={secureTextEntry}
-          keyboardType={keyboardType}
-          maxLength={maxLength}
-          multiline={multiline}
-          numberOfLines={numberOfLines}
-          cursorColor={showCursor ? '#3770FF' : 'transparent'}
-          selectionColor="#3770FF"
-          {...props}
-        />
-      </View>
+        <Text style={[styles.input, { color: getTextColor() }, inputStyle]}>
+          {value || placeholder}
+        </Text>
+      </TouchableOpacity>
 
       {displayText && displayText.length > 0 && (
         <Text style={[
@@ -154,9 +111,18 @@ const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
             {displayText}
         </Text>
       )}
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={value ? new Date(value) : new Date()}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
     </View>
   );
-});
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -209,6 +175,4 @@ const styles = StyleSheet.create({
   },
 });
 
-CustomTextInput.displayName = 'CustomTextInput';
-
-export default CustomTextInput;
+export default DatePickerField;
