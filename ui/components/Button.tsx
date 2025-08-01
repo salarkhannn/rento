@@ -73,16 +73,18 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       gap: 5,
       borderRadius: 50,
       fontSize: 15,
+      letterSpacing: "-0.34px",
       iconSize: 18,
     },
     medium: {
       width: 136,
-      height: 41,
+      height: 45,
       paddingHorizontal: 32,
       paddingVertical: 11,
       gap: 7,
       borderRadius: 10,
       fontSize: 15,
+      letterSpacing: "-0.34px",
       iconSize: 20,
     },
     large: {
@@ -93,6 +95,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       gap: 7,
       borderRadius: 10,
       fontSize: 15,
+      letterSpacing: "-0.34px",
       iconSize: 22,
     }
   };
@@ -165,25 +168,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     return icon;
   };
 
-  // Render placeholder icon for medium size (based on your examples)
-  const renderPlaceholderIcon = (): React.ReactNode => {
-    if (size !== 'medium') return null;
-    
-    const borderColor = variant === 'filled' ? currentColors.primaryText : currentColors.tintedText;
-    
-    return (
-      <View style={[
-        styles.placeholderIcon,
-        { 
-          width: config.iconSize, 
-          height: config.iconSize,
-          borderColor: borderColor,
-          borderWidth: 2
-        }
-      ]} />
-    );
-  };
-
   const buttonStyle: ViewStyle = {
     width: config.width,
     height: config.height,
@@ -214,7 +198,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     >
       <View style={[styles.content, { gap: config.gap }]}>
         {leftIcon && renderIcon(leftIcon, true)}
-        {!leftIcon && !rightIcon && renderPlaceholderIcon()}
+        {!leftIcon && !rightIcon}
         
         <Text style={[buttonTextStyle, textStyle]}>
           {loading ? 'Loading...' : title}

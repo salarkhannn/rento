@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
 import CustomTextInput from '@/ui/components/InputField';
+import CustomButton from '@/ui/components/Button';
 
 export default function AuthStartScreen() {
   const [email, setEmail] = useState('');
@@ -46,7 +47,6 @@ export default function AuthStartScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Rento</Text>
-      <Text style={styles.subtitle}>Enter your email to continue</Text>
 
       <CustomTextInput
         title='Email'
@@ -60,26 +60,45 @@ export default function AuthStartScreen() {
         containerStyle={{ width: '100%', marginBottom: 15 }}
       />
 
-      <TouchableOpacity 
-        style={[styles.button, { opacity: loading ? 0.5 : 1 }]}
+      <CustomButton
+        title="Continue with Email"
         onPress={checkEmail}
         disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? 'Checking...' : 'Continue with Email'}
-        </Text>
-      </TouchableOpacity>
+        loading={loading}
+        size="medium"
+        variant="filled"
+        color="colored"
+        style={{ width: '100%', marginBottom: 15 }}
+      />
+
+      <View style={styles.dividerContainer}>
+        <View style={styles.line} />
+        <Text style={styles.text}>or</Text>
+        <View style={styles.line} />
+      </View>
 
       <View style={styles.socialButtonsContainer}>
-        <TouchableOpacity style={styles.socialButton} disabled>
-          <Text style={styles.socialButtonText}>Continue with Facebook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton} disabled>
-          <Text style={styles.socialButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton} disabled>
-          <Text style={styles.socialButtonText}>Continue with Apple</Text>
-        </TouchableOpacity>
+        <CustomButton
+          title="Continue with Facebook"
+          size="medium"
+          variant="bordered"
+          color="colored"
+          style={{ width: '100%' }}
+        />
+        <CustomButton
+          title="Continue with Google"
+          size="medium"
+          variant="bordered"
+          color="colored"
+          style={{ width: '100%' }}
+        />
+        <CustomButton
+          title="Continue with Apple"
+          size="medium"
+          variant="bordered"
+          color="colored"
+          style={{ width: '100%' }}
+        />
       </View>
     </View>
   );
@@ -91,46 +110,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     alignItems: 'center',
+    backgroundColor: '#F7F7F7'
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'SF Pro',
+    fontSize: 28,
+    letterSpacing: 0,
+    fontWeight: 'medium',
     textAlign: 'center',
     marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#666',
-    marginBottom: 40,
-  },
-  button: {
-    backgroundColor: '#2f95dc',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 15,
-    width: '100%',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   socialButtonsContainer: {
     marginTop: 20,
     width: '100%',
-  },
-  socialButton: {
-    backgroundColor: '#eee',
-    padding: 15,
-    borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 10,
+    gap: 10,
   },
-  socialButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: 'bold',
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+    width: '100%',
+    backgroundColor: '#F7F7F7',
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#B0B0B0', // grey tone similar to the image
+  },
+  text: {
+    marginHorizontal: 8,
+    fontSize: 14,
+    color: '#B0B0B0',
+    fontFamily: 'SF Pro',
   },
 });
