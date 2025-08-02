@@ -11,13 +11,7 @@ import { typography } from '@/ui/typography';
 
 export default function AuthLoginScreen() {
   const { email: initialEmail } = useLocalSearchParams();
-  const [email, setEmail] = useState('');
-
-  useEffect(() => {
-    if (initialEmail) {
-      setEmail(initialEmail as string);
-    }
-  }, [initialEmail]);
+  const [email, setEmail] = useState((initialEmail as string) ?? '');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
