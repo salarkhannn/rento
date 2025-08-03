@@ -1,4 +1,7 @@
-export default () => ({
+import 'dotenv/config';
+
+export default ( {config} ) => ({
+    ...config,
     expo: {
         name: "Rento",
         slug: "rento",
@@ -8,7 +11,7 @@ export default () => ({
         scheme: "rento",
         userInterfaceStyle: "automatic",
         splash: {
-            image: "./assets/images/splash.png",
+            image: "./assets/images/splash-icon.png",
             resizeMode: "contain",
             backgroundColor: "#ffffff"
         },

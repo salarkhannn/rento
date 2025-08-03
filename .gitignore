@@ -37,3 +37,7 @@ yarn-error.*
 *.tsbuildinfo
 
 database_schema.db
+
+
+# 
+.env
