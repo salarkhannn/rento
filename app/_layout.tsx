@@ -83,7 +83,7 @@ export default function RootLayout() {
           router.push('/(tabs)/bookings');
           break;
         case 'listing_deleted':
-          router.push('/my-listings');
+          router.push('/(tabs)/listings');
           break;
         default:
           router.push('/(tabs)/notifications');

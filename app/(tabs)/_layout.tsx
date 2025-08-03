@@ -111,11 +111,11 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="my-listings"
+          name="listings"
           options={{
             title: 'Listings',
             tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
-            href: mode === 'lender' ? '/my-listings' : null,
+            href: mode === 'lender' ? '/listings' : null,
             headerRight: () => (
               <Link href="/create-item" asChild>
                 <Pressable>

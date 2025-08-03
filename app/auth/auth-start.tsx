@@ -23,15 +23,17 @@ export default function AuthStartScreen() {
     }
     setLoading(true);
     try {
+      // Temporarily commented out to bypass login/signup
       const { data, error } = await supabase
         .rpc('check_user_exists', { input_email: email.toLowerCase().trim() });
 
       if (error) {
         console.error('AuthStart: Supabase RPC error:', error);
         Alert.alert('Error', 'Unable to verify email.');
-        return;
+        return; // commented out to bypass but check if the user exists
       }
-      
+      // let data = true;
+      // console.log('Bypassing email check, assuming user exists:');
       if (data === true) {
         router.push({ pathname: '/auth/auth-login', params: { email } });
       } else {

@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
+    // Temporarily bypassing auth for development
     const { session, loading, isInitialized } = useAuth();
 
     useEffect(() => {

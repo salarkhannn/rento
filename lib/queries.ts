@@ -6,7 +6,7 @@ export const getRentalItems = async (): Promise<RentalItem[]> => {
         .from('rental_items')
         .select(`
             *,
-            owner:profiles(*)    
+            owner:profiles!owner_id(*)    
         `)
         .eq('is_available', true)
         .order('created_at', { ascending: false });
@@ -20,7 +20,7 @@ export const getRentalItem = async (id: string) : Promise<RentalItem | null> => 
         .from('rental_items')
         .select(`
             *,
-            owner:profiles(*)    
+            owner:profiles!owner_id(*)    
         `)
         .eq('id', id)
         .single();
@@ -49,7 +49,7 @@ export const getMyBookings = async (): Promise<Booking[]> => {
         .from('bookings')
         .select(`
             *,
-            item:rental_items(*)    
+            item:rental_items!item_id(*)    
         `)
         .eq('renter_id', user.id)
         .order('created_at', { ascending: false});
@@ -63,7 +63,7 @@ export const getItemBookings = async (itemId: string): Promise<Booking[]> => {
         .from('bookings')
         .select(`
             *,
-            item:rental_items(*)
+            item:rental_items!item_id(*)
         `)
         .eq('item_id', itemId)
         .order('created_at', { ascending: false });
@@ -91,7 +91,7 @@ export const createBooking = async (booking: {
     })
     .select(`
         *,
-        item:rental_items(*)
+        item:rental_items!item_id(*)
     `)
     .single();
 
@@ -124,7 +124,7 @@ export const getMyListings = async (): Promise<RentalItem[]> => {
         .from('rental_items')
         .select(`
             *,
-            owner:profiles(*)
+            owner:profiles!owner_id(*)
         `)
         .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
@@ -150,8 +150,8 @@ export const getLenderBookings = async (lenderId: string): Promise<Booking[]> =>
         .select(
             `
             *,
-            renter:profiles(*),
-            item:rental_items(*)
+            renter:profiles!renter_id(*),
+            item:rental_items!item_id(*)
         `
         )
         .in('item_id', itemIds)
@@ -208,6 +208,68 @@ export const updateProfile = async (updates: Partial<Profile>): Promise<Profile>
 
     if (error) throw error;
     return data;
+};
+
+// Wishlist queries
+export const getWishlistItems = async (): Promise<RentalItem[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('wishlists')
+        .select(`
+            item:rental_items!item_id(
+                *,
+                owner:profiles!owner_id(*)
+            )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data?.map((w: any) => w.item).filter(Boolean) || []) as RentalItem[];
+};
+
+export const addToWishlist = async (itemId: string): Promise<void> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+        .from('wishlists')
+        .insert({
+            user_id: user.id,
+            item_id: itemId
+        });
+
+    if (error) throw error;
+};
+
+export const removeFromWishlist = async (itemId: string): Promise<void> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+        .from('wishlists')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('item_id', itemId);
+
+    if (error) throw error;
+};
+
+export const isInWishlist = async (itemId: string): Promise<boolean> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    const { data, error } = await supabase
+        .from('wishlists')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('item_id', itemId)
+        .maybeSingle();
+
+    if (error) return false;
+    return !!data;
 };
 
 

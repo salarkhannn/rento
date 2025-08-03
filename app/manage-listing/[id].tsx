@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } fr
 import { useLocalSearchParams, router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
-import { getRentalItem, getListingBookings, updateBookingStatus, deleteRentalItem } from '@/lib/queries';
+import { getRentalItem, getItemBookings, updateBookingStatus, deleteRentalItem } from '@/lib/queries';
 import { RentalItem, Booking } from '@/lib/supabase';
 import { handleBookingStatusChange, handleListingDeletion } from '@/lib/notificationQueries';
 import { scheduleLocalNotification } from '@/lib/notifications';
@@ -25,7 +25,7 @@ export default function ManageListingScreen() {
     try {
       const [itemData, bookingsData] = await Promise.all([
         getRentalItem(id),
-        getListingBookings(id)
+        getItemBookings(id)
       ]);
       
       setItem(itemData);
@@ -138,7 +138,7 @@ export default function ManageListingScreen() {
           Alert.alert('Success', 'Listing deleted successfully', [
               {
                   text: 'OK',
-                  onPress: () => router.push('/my-listings')
+                  onPress: () => router.push('/(tabs)/listings')
               }
           ]);
       } catch (error) {

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Text, View } from './Themed';
 import { RentalItem } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
+import { addToWishlist, removeFromWishlist, isInWishlist } from '@/lib/queries';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 interface Props {
@@ -11,7 +12,42 @@ interface Props {
 }
 
 export function RentalItemCard({ item }: Props) {
-  const { mode } = useAuth();
+  const { mode, user } = useAuth();
+  const [inWishlist, setInWishlist] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  useEffect(() => {
+    checkWishlistStatus();
+  }, [item.id, user]);
+
+  const checkWishlistStatus = async () => {
+    if (!user || mode !== 'renter') return;
+    try {
+      const isWishlisted = await isInWishlist(item.id);
+      setInWishlist(isWishlisted);
+    } catch (error) {
+      console.error('Error checking wishlist status:', error);
+    }
+  };
+
+  const handleWishlistToggle = async () => {
+    if (!user || mode !== 'renter' || wishlistLoading) return;
+    
+    setWishlistLoading(true);
+    try {
+      if (inWishlist) {
+        await removeFromWishlist(item.id);
+        setInWishlist(false);
+      } else {
+        await addToWishlist(item.id);
+        setInWishlist(true);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   const handlePress = () => {
     router.push(`/item/${item.id}`);
@@ -25,22 +61,33 @@ export function RentalItemCard({ item }: Props) {
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>{item.title}</Text>
-          {/* Wishlist icon button (UI only for now) */}
-          <TouchableOpacity style={styles.wishlistButton}>
-            <FontAwesome name="heart-o" size={22} color="#FF5252" />
-          </TouchableOpacity>
+          {/* Show wishlist button only for renters */}
+          {mode === 'renter' && user && (
+            <TouchableOpacity 
+              style={styles.wishlistButton} 
+              onPress={handleWishlistToggle}
+              disabled={wishlistLoading}
+            >
+              <FontAwesome 
+                name={inWishlist ? "heart" : "heart-o"} 
+                size={22} 
+                color={inWishlist ? "#FF5252" : "#999"} 
+              />
+            </TouchableOpacity>
+          )}
         </View>
         <Text style={styles.location}>{item.location}</Text>
         <Text style={styles.category}>{item.category}</Text>
         <View style={styles.footer}>
           <Text style={styles.price}>${item.price}/day</Text>
           <Text style={styles.owner}>by {item.owner?.name || 'Unknown'}</Text>
-          {/* Only show manage button for lenders */}
-          {mode === 'lender' && (
+          {/* Only show manage button for lenders viewing their own items */}
+          {mode === 'lender' && user?.id === item.owner_id && (
             <TouchableOpacity
               onPress={() => router.push(`/manage-listing/${item.id}`)}
+              style={styles.manageButton}
             >
-              <Text>Manage</Text>
+              <Text style={styles.manageButtonText}>Manage</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -115,5 +162,16 @@ const styles = StyleSheet.create({
   owner: {
     fontSize: 12,
     color: '#666',
+  },
+  manageButton: {
+    backgroundColor: '#2f95dc',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  manageButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
