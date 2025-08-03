@@ -169,17 +169,23 @@ searchInput: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+    maxHeight: 60,
   },
   categoryFilterContent: {
     paddingHorizontal: 16,
     paddingVertical: 12,
+    alignItems: 'center',
   },
   categoryButton: {
     backgroundColor: '#f0f0f0',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
     marginRight: 8,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 60,
   },
   categoryButtonSelected: {
     backgroundColor: '#2f95dc',
@@ -188,6 +194,7 @@ searchInput: {
     fontSize: 14,
     color: '#666',
     fontWeight: '500',
+    textAlign: 'center',
   },
   categoryButtonTextSelected: {
     color: '#fff',
