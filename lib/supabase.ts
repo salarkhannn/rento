@@ -44,6 +44,13 @@ export interface Profile {
     current_mode?: UserMode;
 }
 
+export interface Wishlist {
+    id: string;
+    user_id: string;
+    item_id: string;
+    created_at: string;
+}
+
 export interface RentalItem {
     id: string;
     title: string;
