@@ -51,6 +51,18 @@ export interface Wishlist {
     created_at: string;
 }
 
+export interface Message {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    content: string;
+    is_read: boolean;
+    created_at: string;
+    updated_at: string;
+    sender?: Profile;
+    receiver?: Profile;
+}
+
 export interface RentalItem {
     id: string;
     title: string;

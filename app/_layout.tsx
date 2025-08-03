@@ -6,6 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef } from 'react';
 import 'react-native-reanimated';
 import * as Notifications from 'expo-notifications';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider } from '@/lib/AuthContext';
@@ -100,9 +101,11 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -118,6 +121,7 @@ function RootLayoutNav() {
         <Stack.Screen name="create-item" options={{ title: 'Create Listing' }} />
         <Stack.Screen name="my-listings" options={{ title: 'My Listings' }} />
         <Stack.Screen name="item/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="conversation/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="manage-listing/[id]" options={{ title: 'Manage Listing' }} />
         <Stack.Screen name="edit-listing/[id]" options={{ title: 'Edit Listing' }} />
       </Stack>

@@ -1,4 +1,4 @@
-import { supabase, RentalItem, Booking, Profile, Category, Wishlist } from "./supabase";
+import { supabase, RentalItem, Booking, Profile, Category, Wishlist, Message } from "./supabase";
 
 // Rental Item Queries
 export const getRentalItems = async (): Promise<RentalItem[]> => {
@@ -199,7 +199,7 @@ export const updateProfile = async (updates: Partial<Profile>): Promise<Profile>
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
-    
+
     const { data, error } = await supabase
         .from('profiles')
         .update(updates)
@@ -325,4 +325,114 @@ export const uploadImage = async (
         .getPublicUrl(filePath);
 
     return data.publicUrl;
+};
+
+// Message queries
+export const getConversations = async (): Promise<Message[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Get the latest message for each conversation
+    const { data, error } = await supabase
+        .from('messages')
+        .select(`
+            *,
+            sender:profiles!sender_id(*),
+            receiver:profiles!receiver_id(*)
+        `)
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Group messages by conversation and get the latest message for each
+    const conversations = new Map<string, Message>();
+    
+    data?.forEach((message: Message) => {
+        const otherUserId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
+        const existingMessage = conversations.get(otherUserId);
+        
+        if (!existingMessage || new Date(message.created_at) > new Date(existingMessage.created_at)) {
+            conversations.set(otherUserId, message);
+        }
+    });
+
+    return Array.from(conversations.values());
+};
+
+export const getMessages = async (otherUserId: string): Promise<Message[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('messages')
+        .select(`
+            *,
+            sender:profiles!sender_id(*),
+            receiver:profiles!receiver_id(*)
+        `)
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`)
+        .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+};
+
+export const sendMessage = async (receiverId: string, content: string): Promise<Message> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('messages')
+        .insert({
+            sender_id: user.id,
+            receiver_id: receiverId,
+            content: content.trim()
+        })
+        .select(`
+            *,
+            sender:profiles!sender_id(*),
+            receiver:profiles!receiver_id(*)
+        `)
+        .single();
+
+    if (error) throw error;
+    return data;
+};
+
+export const markMessageAsRead = async (messageId: string): Promise<void> => {
+    const { error } = await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('id', messageId);
+
+    if (error) throw error;
+};
+
+export const markConversationAsRead = async (otherUserId: string): Promise<void> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('sender_id', otherUserId)
+        .eq('receiver_id', user.id)
+        .eq('is_read', false);
+
+    if (error) throw error;
+};
+
+export const getUnreadMessageCount = async (): Promise<number> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return 0;
+
+    const { count, error } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('receiver_id', user.id)
+        .eq('is_read', false);
+
+    if (error) return 0;
+    return count || 0;
 };

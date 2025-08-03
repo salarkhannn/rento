@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RentalItemCard } from '@/components/RentalItemCard';
 import { RentalItem } from '@/lib/supabase';
 import { getWishlistItems } from '@/lib/queries';
@@ -9,6 +10,7 @@ export default function WishlistScreen() {
   const [wishlist, setWishlist] = useState<RentalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     loadWishlist();
@@ -42,7 +44,9 @@ export default function WishlistScreen() {
 
   return (
     <ModeGuard requiredMode="renter">
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+        
         <Text style={styles.title}>Wishlist</Text>
         {wishlist.length === 0 ? (
           <View style={styles.center}>

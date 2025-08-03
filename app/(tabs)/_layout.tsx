@@ -90,6 +90,7 @@ export default function TabLayout() {
             title: 'Wishlist',
             tabBarIcon: ({ color }) => <TabBarIcon name="heart" color={color} />,
             href: mode === 'renter' ? '/wishlist' : null,
+            headerShown: false, // Hide header since the screen implements its own
           }}
         />
         <Tabs.Screen

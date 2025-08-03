@@ -28,7 +28,9 @@ export default ( {config} ) => ({
                 foregroundImage: "./assets/images/adaptive-icon.png",
                 backgroundColor: "#ffffff"
             },
-            useNextNotificationsApi: true
+            useNextNotificationsApi: true,
+            softwareKeyboardLayoutMode: "pan",
+            permissions: ["NOTIFICATIONS"]
         },
         web: { 
             bundler: "metro",

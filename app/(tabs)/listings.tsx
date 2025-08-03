@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { getMyListings } from '@/lib/queries';
@@ -10,6 +11,7 @@ export default function ListingsTab() {
   const [listings, setListings] = useState<RentalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const loadListings = async () => {
     try {
@@ -77,16 +79,6 @@ export default function ListingsTab() {
   return (
     <ModeGuard requiredMode="lender">
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Listings</Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => router.push('/create-item')}
-          >
-            <Text style={styles.addButtonText}>Add Listing</Text>
-          </TouchableOpacity>
-        </View>
-
         <FlatList
           data={listings}
           renderItem={renderListing}
@@ -130,30 +122,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#666',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  addButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
   },
   listingCard: {
     backgroundColor: '#fff',

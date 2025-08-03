@@ -100,6 +100,19 @@ export function RentalItemCard({ item }: Props) {
             </TouchableOpacity>
           )}
         </View>
+        
+        {/* Contact Owner button for renters viewing other people's items */}
+        {mode === 'renter' && user && user.id !== item.owner_id && (
+          <TouchableOpacity
+            style={styles.contactButton}
+            onPress={(e) => {
+              e.stopPropagation(); // Prevent triggering the card press
+              router.push(`/conversation/${item.owner_id}?name=${encodeURIComponent(item.owner?.name || 'Owner')}`);
+            }}
+          >
+            <Text style={styles.contactButtonText}>Contact Owner</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -181,6 +194,21 @@ const styles = StyleSheet.create({
   manageButtonText: {
     color: '#fff',
     fontSize: 12,
+    fontWeight: '600',
+  },
+  contactButton: {
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#2f95dc',
+    alignItems: 'center',
+  },
+  contactButtonText: {
+    color: '#2f95dc',
+    fontSize: 14,
     fontWeight: '600',
   },
 });

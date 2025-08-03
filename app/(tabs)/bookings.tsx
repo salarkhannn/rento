@@ -123,11 +123,6 @@ export default function BookingsScreen() {
   return (
     <ModeGuard requiredMode='renter'>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>My Bookings</Text>
-          <Text style={styles.subtitle}>{bookings.length} booking(s)</Text>
-        </View>
-        
         <FlatList
           data={bookings}
           renderItem={renderBooking}
@@ -164,21 +159,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  header: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
   },
   centerContainer: {
     flex: 1,
