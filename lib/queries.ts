@@ -1,4 +1,4 @@
-import { supabase, RentalItem, Booking, Profile, Category } from "./supabase";
+import { supabase, RentalItem, Booking, Profile, Category, Wishlist } from "./supabase";
 
 // Rental Item Queries
 export const getRentalItems = async (): Promise<RentalItem[]> => {
@@ -199,6 +199,7 @@ export const updateProfile = async (updates: Partial<Profile>): Promise<Profile>
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    
     const { data, error } = await supabase
         .from('profiles')
         .update(updates)
@@ -216,7 +217,7 @@ export const getWishlistItems = async (): Promise<RentalItem[]> => {
     if (!user) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
-        .from('wishlists')
+        .from('wishlist')
         .select(`
             item:rental_items!item_id(
                 *,
@@ -234,8 +235,23 @@ export const addToWishlist = async (itemId: string): Promise<void> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
+    // First check if item is already in wishlist to prevent duplicates
+    const { data: existing, error: checkError } = await supabase
+        .from('wishlist')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('item_id', itemId)
+        .maybeSingle();
+
+    if (checkError) throw checkError;
+    
+    // If item is already in wishlist, don't add it again
+    if (existing) {
+        return; // Already in wishlist, no need to add
+    }
+
     const { error } = await supabase
-        .from('wishlists')
+        .from('wishlist')
         .insert({
             user_id: user.id,
             item_id: itemId
@@ -249,7 +265,7 @@ export const removeFromWishlist = async (itemId: string): Promise<void> => {
     if (!user) throw new Error('User not authenticated');
 
     const { error } = await supabase
-        .from('wishlists')
+        .from('wishlist')
         .delete()
         .eq('user_id', user.id)
         .eq('item_id', itemId);
@@ -262,13 +278,16 @@ export const isInWishlist = async (itemId: string): Promise<boolean> => {
     if (!user) return false;
 
     const { data, error } = await supabase
-        .from('wishlists')
+        .from('wishlist')
         .select('id')
         .eq('user_id', user.id)
         .eq('item_id', itemId)
         .maybeSingle();
 
-    if (error) return false;
+    if (error) {
+        console.error('Error checking wishlist status:', error);
+        return false;
+    }
     return !!data;
 };
 

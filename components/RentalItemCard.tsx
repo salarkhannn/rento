@@ -36,14 +36,23 @@ export function RentalItemCard({ item }: Props) {
     setWishlistLoading(true);
     try {
       if (inWishlist) {
+        console.log('item was already in wishlist, Removing from wishlist:', item.id);
         await removeFromWishlist(item.id);
         setInWishlist(false);
       } else {
+        console.log('Adding item to wishlist:', item.id);
         await addToWishlist(item.id);
         setInWishlist(true);
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      // Revert the optimistic UI update if there was an error
+      // by re-checking the wishlist status
+      checkWishlistStatus();
     } finally {
       setWishlistLoading(false);
     }
