@@ -55,7 +55,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => router.push('/my-listings')}
+          onPress={() => router.push('/(tabs)/listings')}
         >
           <Text>My Listings</Text>
         </TouchableOpacity>

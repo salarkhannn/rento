@@ -44,6 +44,25 @@ export interface Profile {
     current_mode?: UserMode;
 }
 
+export interface Wishlist {
+    id: string;
+    user_id: string;
+    item_id: string;
+    created_at: string;
+}
+
+export interface Message {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    content: string;
+    is_read: boolean;
+    created_at: string;
+    updated_at: string;
+    sender?: Profile;
+    receiver?: Profile;
+}
+
 export interface RentalItem {
     id: string;
     title: string;
@@ -98,4 +117,20 @@ export interface Notification {
     read?: boolean;
     created_at: string;
     updated_at: string;
+}
+
+export interface Wishlist {
+    id: string;
+    user_id: string;
+    item_id: string;
+    created_at: string;
+}
+
+export interface Message {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    content: string;
+    is_read: boolean;
+    created_at: string;
 }

@@ -18,11 +18,13 @@ export default function AuthLoginScreen() {
   const signIn = async () => {
     setLoading(true);
     try {
+      // Temporarily commented out to bypass login
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
+      console.log('Bypassing sign-in, assuming success:');
+      // let error = null;
       if (error) {
         Alert.alert('Error', error.message);
       } else {
