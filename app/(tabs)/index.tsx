@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, ScrollView, Keyboard } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { RentalItemCard } from '@/components/RentalItemCard';
 import { getCategories, getRentalItems } from '@/lib/queries';
 import { Category, RentalItem } from '@/lib/supabase';
 import { ModeGuard } from '../guards/ModeGuard';
+import SearchBar from '@/ui/components/SearchBar';
+import Chip from '@/ui/components/Chip';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function BrowseScreen() {
   const [items, setItems] = useState<RentalItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<RentalItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState('');
 
   const loadData = async () => {
@@ -26,7 +27,7 @@ export default function BrowseScreen() {
       
       setItems(itemsData);
       setFilteredItems(itemsData);
-      setCategories([{ id: 'all', name: 'All', created_at: '' }, ...categoriesData]);
+      setCategories(categoriesData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -39,26 +40,32 @@ export default function BrowseScreen() {
     loadData();
   }, []);
 
+  const handleCategoryPress = (categoryName: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryName) 
+        ? prev.filter(c => c !== categoryName)
+        : [...prev, categoryName]
+    );
+  };
+
   useEffect(() => {
     let filtered = items;
     
-    // filter by category
-    if (selectedCategory !== 'All') {
-      filtered = items.filter(item => item.category === selectedCategory);
+    if (selectedCategories.length > 0) {
+      filtered = items.filter(item => selectedCategories.includes(item.category));
     }
 
-    // filter by search query
     if (searchQuery.trim()) {
       filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchQuery.toLowerCase())||
+        item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.category.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     setFilteredItems(filtered);
-  }, [selectedCategory, items, searchQuery]);
+  }, [selectedCategories, items, searchQuery]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -78,12 +85,11 @@ export default function BrowseScreen() {
     <ModeGuard requiredMode='renter'>
       <View style={styles.container}>
         <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
+          <SearchBar
             placeholder="Search items..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            returnKeyType='search'
+            iconSource={<Ionicons name="search" size={18} color="#8E8E93" />}
           />
         </View>
         <ScrollView
@@ -91,24 +97,24 @@ export default function BrowseScreen() {
           showsHorizontalScrollIndicator={false}
           style={styles.categoryFilter}
           contentContainerStyle={styles.categoryFilterContent}
+          keyboardShouldPersistTaps="handled"
         >
-          {categories.map(category => (
-            <TouchableOpacity
-              key={category.id}
-              style={[
-                styles.categoryButton,
-                selectedCategory === category.name && styles.categoryButtonSelected
-              ]}
-              onPress={() => setSelectedCategory(category.name)}
-            >
-              <Text style={[
-                styles.categoryButtonText,
-                selectedCategory === category.name && styles.categoryButtonTextSelected
-              ]}>
-                {category.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {categories.map(category => {
+            const isSelected = selectedCategories.includes(category.name);
+            return (
+              <Chip
+                key={category.id}
+                text={category.name}
+                state={isSelected ? 'active' : 'default'}
+                outline={true}
+                leadingIcon={false}
+                trailingIcon={isSelected}
+                trailingIconSource={<Ionicons name="close" size={13} color="#3770FF" />}
+                onPress={() => handleCategoryPress(category.name)}
+                style={styles.chip}
+              />
+            );
+          })}
         </ScrollView>
 
         <FlatList
@@ -116,15 +122,17 @@ export default function BrowseScreen() {
           renderItem={({ item }) => <RentalItemCard item={item} />}
           keyExtractor={(item)=> item.id}
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode="none"
+          keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {selectedCategory === 'All'
+                {selectedCategories.length === 0
                   ? 'No items available'
-                  : `No items found in "${selectedCategory.toLowerCase()}" category`
+                  : `No items found in the selected categories`
                 }
               </Text>
               <Text style={styles.emptySubtext}>Check back later for new rentals!</Text>
@@ -158,13 +166,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-},
-searchInput: {
-    backgroundColor: '#f5f5f5',
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-},
+  },
   categoryFilter: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -176,29 +178,8 @@ searchInput: {
     paddingVertical: 12,
     alignItems: 'center',
   },
-  categoryButton: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
+  chip: {
     marginRight: 8,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minWidth: 60,
-  },
-  categoryButtonSelected: {
-    backgroundColor: '#2f95dc',
-  },
-  categoryButtonText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  categoryButtonTextSelected: {
-    color: '#fff',
-    fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,
