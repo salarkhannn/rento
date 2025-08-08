@@ -1,6 +1,6 @@
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs, router } from 'expo-router';
+import { Link, Tabs, router, useRouter, useSegments } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
@@ -11,6 +11,7 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { AuthGuard } from '@/components/AuthGaurd';
 import { getUnreadNotificationCount } from '@/lib/notificationQueries';
 import { useAuth } from '@/lib/AuthContext';
+import NavigationBar from '@/ui/components/Navbar';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -61,6 +62,53 @@ function NotificationsIcon() {
   );
 }
 
+function CustomTabBar() {
+  const { mode } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
+  
+  // Determine the active tab based on current route
+  const getActiveTab = () => {
+    const currentTab = segments[1]; // Get the tab name from segments
+    
+    if (mode === 'renter') {
+      const renterTabs = ['index', 'wishlist', 'bookings', 'messages', 'profile'];
+      const index = currentTab ? renterTabs.indexOf(currentTab) : 0;
+      return index === -1 ? 0 : index; // Default to first tab if not found
+    } else {
+      const lenderTabs = ['dashboard', 'listings', 'lender-bookings', 'messages', 'profile'];
+      const index = currentTab ? lenderTabs.indexOf(currentTab) : 0;
+      return index === -1 ? 0 : index; // Default to first tab if not found
+    }
+  };
+
+  const handleTabPress = (index: number, label: string) => {
+    try {
+      if (mode === 'renter') {
+        const renterRoutes = ['/(tabs)/', '/(tabs)/wishlist', '/(tabs)/bookings', '/(tabs)/messages', '/(tabs)/profile'];
+        if (index >= 0 && index < renterRoutes.length) {
+          router.push(renterRoutes[index] as any);
+        }
+      } else {
+        const lenderRoutes = ['/(tabs)/dashboard', '/(tabs)/listings', '/(tabs)/lender-bookings', '/(tabs)/messages', '/(tabs)/profile'];
+        if (index >= 0 && index < lenderRoutes.length) {
+          router.push(lenderRoutes[index] as any);
+        }
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };
+
+  return (
+    <NavigationBar
+      mode={mode as 'renter' | 'lender'}
+      activeTab={getActiveTab()}
+      onTabPress={handleTabPress}
+    />
+  );
+}
+
 export default function TabLayout() {
   const { mode } = useAuth();
   console.log("MODE FROM USEAUTH: ", mode);
@@ -70,6 +118,7 @@ export default function TabLayout() {
   return (
     <AuthGuard>
       <Tabs
+        tabBar={() => <CustomTabBar />}
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: useClientOnlyValue(false, true),
