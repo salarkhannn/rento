@@ -34,7 +34,13 @@ export const typography: Record<string, TypographyStyle> = {
     fontSize: 28,
     lineHeight: 34,
   },
-  title1Medium: { fontFamily: baseFont, fontWeight: '600', fontSize: 28, lineHeight: 34},
+  title1Medium: {
+    fontFamily: baseFont,
+    fontWeight: '600',
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.06 * 28, // Adjusted for medium weight
+  },
   title1Emphasized: {
     fontFamily: baseFont,
     fontWeight: '600',

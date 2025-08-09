@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { Text } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { typography } from '@/ui/typography';
 
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { AuthGuard } from '@/components/AuthGaurd';
@@ -45,7 +46,7 @@ function NotificationsIcon() {
           <FontAwesome
             name="bell-o"
             size={25}
-            color={Colors.text}
+            color={Colors.text.primary}
             style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
           />
           {unreadCount > 0 && (
@@ -111,16 +112,35 @@ function CustomTabBar() {
 export default function TabLayout() {
   const { mode } = useAuth();
 
+  // Header style configuration
+  const headerTitleStyle = {
+    ...typography.title1Medium,
+    color: Colors.text.primary,
+  };
+
+  const screenOptions = {
+    tabBarActiveTintColor: Colors.tint,
+    headerShown: useClientOnlyValue(false, true),
+    headerRight: () => <NotificationsIcon />,
+    headerTitleStyle,
+    headerStyle: {
+      backgroundColor: Colors.background.primary,
+      elevation: 0,
+      shadowOpacity: 0,
+      borderBottomWidth: 0,
+    },
+    headerTitleAlign: 'left' as const,
+    headerLeftContainerStyle: { paddingLeft: 0 },
+    headerRightContainerStyle: { paddingRight: 0 },
+    headerTitleContainerStyle: { paddingLeft: 0 },
+  };
+
   // Conditionally render tabs based on mode
   return (
     <AuthGuard>
       <Tabs
         tabBar={() => <CustomTabBar />}
-        screenOptions={{
-          tabBarActiveTintColor: Colors.tint,
-          headerShown: useClientOnlyValue(false, true),
-          headerRight: () => <NotificationsIcon />,
-        }}>
+        screenOptions={screenOptions}>
         {/* Renter Tabs */}
         <Tabs.Screen
           name="index"
@@ -170,7 +190,7 @@ export default function TabLayout() {
                     <FontAwesome
                       name="plus"
                       size={25}
-                      color={Colors.text}
+                      color={Colors.text.primary}
                       style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                     />
                   )}
@@ -217,7 +237,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: -5,
-    backgroundColor: '#FF3B30',
+    backgroundColor: Colors.colors.red,
     borderRadius: 12,
     minWidth: 20,
     height: 20,
@@ -225,7 +245,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badgeText: {
-    color: 'white',
+    color: Colors.background.primary,
     fontSize: 10,
     fontWeight: 'bold',
   },

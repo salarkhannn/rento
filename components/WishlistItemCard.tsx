@@ -34,8 +34,6 @@ export function WishlistItemCard({ item, onRemove }: Props) {
       location={item.location}
       orientation='horizontal'
       onPress={handlePress}
-      cta
-      onCtaPress={handlePress}
       topRightIconName="heart"
       onTopRightIconPress={handleRemoveFromWishlist}
       isTopRightIconActive={true}
