@@ -267,6 +267,13 @@ export default function ItemDetailScreen() {
                                     {bookingLoading ? 'Creating Booking...' : 'Request Booking'}
                                 </Text>
                             </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.contactButton}
+                                onPress={() => router.push(`/conversation/${item.owner_id}?name=${encodeURIComponent(item.owner?.name || 'Owner')}`)}
+                            >
+                                <Text style={styles.contactButtonText}>Contact Owner</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 )}
@@ -407,6 +414,21 @@ const styles = StyleSheet.create({
   },
   bookButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  contactButton: {
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#2f95dc',
+    alignItems: 'center',
+  },
+  contactButtonText: {
+    color: '#2f95dc',
     fontSize: 16,
     fontWeight: '600',
   },

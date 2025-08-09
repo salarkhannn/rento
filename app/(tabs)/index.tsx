@@ -124,6 +124,7 @@ export default function BrowseScreen() {
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="none"
           keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.listContentContainer}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -196,5 +197,8 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 14,
     color: '#666',
+  },
+  listContentContainer: {
+    alignItems: 'center',
   },
 });

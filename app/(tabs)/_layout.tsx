@@ -111,7 +111,6 @@ function CustomTabBar() {
 
 export default function TabLayout() {
   const { mode } = useAuth();
-  console.log("MODE FROM USEAUTH: ", mode);
   const colorScheme = useColorScheme();
 
   // Conditionally render tabs based on mode

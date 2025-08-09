@@ -59,6 +59,7 @@ export default function WishlistScreen() {
             data={wishlist}
             keyExtractor={item => item.id}
             renderItem={({ item }) => <RentalItemCard item={item} />}
+            contentContainerStyle={styles.listContentContainer}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
@@ -108,5 +109,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     textAlign: 'center'
-  }
+  },
+  listContentContainer: {
+    alignItems: 'center',
+  },
 });

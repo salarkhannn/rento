@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/lib/AuthContext';
@@ -10,6 +10,7 @@ import { router } from 'expo-router';
 export default function ProfileScreen() {
   const { user, signOut, mode, switchMode, loading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -30,7 +31,22 @@ export default function ProfileScreen() {
       'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', style: 'destructive', onPress: signOut },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            setSigningOut(true);
+            try {
+              await signOut();
+              // Navigation will be handled by AuthGuard
+            } catch (error) {
+              console.error('Error signing out:', error);
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+            } finally {
+              setSigningOut(false);
+            }
+          }
+        },
       ]
     );
   };
@@ -46,21 +62,13 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <Text style={styles.name}>{profile?.name || 'User'}</Text>
         <Text style={styles.email}>{user?.email}</Text>
+        <Text style={styles.modeText}>Current Mode: {mode?.charAt(0).toUpperCase() + mode?.slice(1)}</Text>
       </View>
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Account</Text>
         <TouchableOpacity style={styles.menuItem}>
           <Text>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => router.push('/(tabs)/listings')}
-        >
-          <Text>My Listings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text>Payment Methods</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>
           <Text>Notifications</Text>
@@ -70,25 +78,25 @@ export default function ProfileScreen() {
           onPress={switchMode}
           disabled={loading}
         >
-          <Text style={styles.modeSwitchText}>{getSwitchLabel()}</Text>
+          <Text style={styles.modeSwitchText}>
+            {loading ? 'Switching...' : getSwitchLabel()}
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Support</Text>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text>Help Center</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text>Contact Us</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text>Terms of Service</Text>
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-        <Text style={styles.signOutText}>Sign Out</Text>
+      <TouchableOpacity 
+        style={[styles.signOutButton, signingOut && styles.signOutButtonDisabled]} 
+        onPress={handleSignOut}
+        disabled={signingOut}
+      >
+        {signingOut ? (
+          <View style={styles.signOutContent}>
+            <ActivityIndicator size="small" color="#fff" />
+            <Text style={styles.signOutText}>Signing Out...</Text>
+          </View>
+        ) : (
+          <Text style={styles.signOutText}>Sign Out</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -114,6 +122,16 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 16,
     color: '#666',
+    marginBottom: 4,
+  },
+  modeText: {
+    fontSize: 14,
+    color: '#1976D2',
+    fontWeight: '600',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   card: {
     backgroundColor: '#fff',
@@ -148,9 +166,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF5252',
     marginHorizontal: 16,
     marginTop: 20,
+    marginBottom: 20,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+  },
+  signOutButtonDisabled: {
+    backgroundColor: '#FFAB91',
+  },
+  signOutContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   signOutText: {
     color: '#fff',
