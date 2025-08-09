@@ -5,6 +5,8 @@ import { RentalItem } from "@/lib/supabase";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
 
 import Constants from 'expo-constants';
 
@@ -159,6 +161,14 @@ export default function ItemDetailScreen() {
 
     return (
         <ScrollView style={styles.container}>
+            <View style={styles.backButtonContainer}>
+                <TouchableOpacity 
+                    style={styles.backButton} 
+                    onPress={() => router.back()}
+                >
+                    <Ionicons name="arrow-back" size={24} color={Colors.text.primary} />
+                </TouchableOpacity>
+            </View>
             {item.image_url ? (
                 <Image source={{ uri: item.image_url }} style={styles.image} />
             ): (
@@ -292,6 +302,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    zIndex: 10,
+  },
+  backButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   centerContainer: {
     flex: 1,
