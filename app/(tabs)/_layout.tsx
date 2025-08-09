@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { Text } from '@/components/Themed';
 import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { AuthGuard } from '@/components/AuthGaurd';
 import { getUnreadNotificationCount } from '@/lib/notificationQueries';
@@ -22,7 +22,6 @@ function TabBarIcon(props: {
 
 function NotificationsIcon() {
   const [unreadCount, setUnreadCount] = useState(0);
-  const colorScheme = useColorScheme();
 
   useEffect(() => {
     loadUnreadCount();
@@ -46,7 +45,7 @@ function NotificationsIcon() {
           <FontAwesome
             name="bell-o"
             size={25}
-            color={Colors[colorScheme ?? 'light'].text}
+            color={Colors.text}
             style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
           />
           {unreadCount > 0 && (
@@ -111,7 +110,6 @@ function CustomTabBar() {
 
 export default function TabLayout() {
   const { mode } = useAuth();
-  const colorScheme = useColorScheme();
 
   // Conditionally render tabs based on mode
   return (
@@ -119,7 +117,7 @@ export default function TabLayout() {
       <Tabs
         tabBar={() => <CustomTabBar />}
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: Colors.tint,
           headerShown: useClientOnlyValue(false, true),
           headerRight: () => <NotificationsIcon />,
         }}>
@@ -172,7 +170,7 @@ export default function TabLayout() {
                     <FontAwesome
                       name="plus"
                       size={25}
-                      color={Colors[colorScheme ?? 'light'].text}
+                      color={Colors.text}
                       style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                     />
                   )}
@@ -225,7 +223,6 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 4,
   },
   badgeText: {
     color: 'white',

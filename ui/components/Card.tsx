@@ -204,15 +204,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 21,
     overflow: 'hidden',
-    elevation: 4,
   },
   verticalContainer: {
-    width: 369,
     minHeight: 200, // Dynamic height based on content
+    width: '100%',
+    alignSelf: 'stretch',
   },
   horizontalContainer: {
-    width: 369,
     height: 163,
+    width: '100%',
     flexDirection: 'row',
   },
   topRightIconContainer: {
@@ -222,7 +222,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     padding: 6,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   topLeftIconContainer: {
     right: 'auto',

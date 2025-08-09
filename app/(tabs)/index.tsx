@@ -154,7 +154,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
   loadingText: {
     marginTop: 10,
@@ -163,8 +162,6 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
@@ -175,8 +172,6 @@ const styles = StyleSheet.create({
     maxHeight: 60,
   },
   categoryFilterContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     alignItems: 'center',
   },
   chip: {
@@ -186,7 +181,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 100,
   },
   emptyText: {
     fontSize: 18,
@@ -199,6 +193,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   listContentContainer: {
-    alignItems: 'center',
+    padding: 20,
   },
 });

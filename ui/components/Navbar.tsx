@@ -72,7 +72,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         <View style={styles.iconContainer}>
           <FontAwesome 
             name={item.icon}
-            size={18}
+            size={24}
             color={isActive ? '#000000' : '#8E8E93'}
             style={{ opacity: isActive ? 1 : 0.6 }}
           />
@@ -102,33 +102,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingTop: 15,
-    paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
-    elevation: 2,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
-    paddingBottom: 20,
+    paddingBottom: 50,
   },
   tabItem: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    gap: 4,
-    paddingVertical: 4,
   },
   iconContainer: {
-    marginBottom: 4,
     width: 24,
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 4,
   },
   tabLabel: {
     fontSize: 13,
     fontWeight: '600',
     fontFamily: 'System',
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 18,
   },
 });
 

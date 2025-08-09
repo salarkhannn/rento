@@ -171,7 +171,6 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     padding: 16,
     borderRadius: 12,
-    elevation: 3,
   },
   bookingHeader: {
     flexDirection: 'row',
