@@ -38,17 +38,17 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   // Configuration for both modes
   const navConfig: Record<NavMode, TabItem[]> = {
     renter: [
-      { label: 'Explore', icon: 'search' },
+      { label: 'Explore', icon: 'compass' },
       { label: 'Wishlist', icon: 'heart' },
       { label: 'Bookings', icon: 'calendar' },
-      { label: 'Messages', icon: 'envelope' },
+      { label: 'Messages', icon: 'comment' },
       { label: 'Profile', icon: 'user' }
     ],
     lender: [
       { label: 'Dashboard', icon: 'tachometer' },
       { label: 'Listings', icon: 'list' },
       { label: 'Bookings', icon: 'calendar' },
-      { label: 'Messages', icon: 'envelope' },
+      { label: 'Messages', icon: 'comment' },
       { label: 'Profile', icon: 'user' }
     ]
   };
@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
+    paddingBottom: 20,
   },
   tabItem: {
     flex: 1,

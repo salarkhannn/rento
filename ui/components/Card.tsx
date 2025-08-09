@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   View,
   Text,
@@ -9,28 +8,32 @@ import {
 } from 'react-native';
 import Chip from './Chip';
 import { PickupMethod } from '@/lib/supabase';
+import { Ionicons } from '@expo/vector-icons';
 
 interface CardProps {
   // Required props
   title: string;
   price?: string;
-  
+
   // Configuration props
   cta?: boolean;
   hasImage?: boolean;
   orientation?: 'vertical' | 'horizontal';
   description?: boolean;
-  
+  topRightIconName?: keyof typeof Ionicons.glyphMap;
+  isTopRightIconActive?: boolean;
+
   // Content props
   descriptionText?: string;
   imageSource?: ImageSourcePropType;
   location?: string;
   pickupMethod?: PickupMethod;
   ctaText?: string;
-  
+
   // Callback props
   onPress?: () => void;
   onCtaPress?: () => void;
+  onTopRightIconPress?: () => void;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -40,50 +43,71 @@ const Card: React.FC<CardProps> = ({
   hasImage = false,
   orientation = 'vertical',
   description = false,
-  descriptionText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sodales arcu nec ante sagittis malesuada...',
+  topRightIconName,
+  isTopRightIconActive = false,
+  descriptionText = '',
   imageSource,
   location = 'Islamabad, Pakistan',
   pickupMethod = 'renter_pickup',
   ctaText = 'View details',
   onPress,
   onCtaPress,
+  onTopRightIconPress,
 }) => {
   const isHorizontal = orientation === 'horizontal';
-  
+
   // Dynamic styles based on orientation
   const containerStyle = [
     styles.container,
     isHorizontal ? styles.horizontalContainer : styles.verticalContainer,
   ];
-  
+
   const imageStyle = [
     styles.image,
     isHorizontal ? styles.horizontalImage : styles.verticalImage,
   ];
-  
+
   const contentStyle = [
     styles.content,
     isHorizontal && styles.horizontalContent,
   ];
-  
+
   // Text sizes based on orientation
   const titleSize = isHorizontal ? 15 : 20;
   const priceSize = isHorizontal ? 8 : 12;
   const descSize = isHorizontal ? 11 : 12;
   const ctaSize = isHorizontal ? 11 : 15;
-  
+
   // Padding for tags and CTA based on orientation
-  const tagPadding = isHorizontal 
+  const tagPadding = isHorizontal
     ? { paddingVertical: 2, paddingHorizontal: 7 }
     : { paddingVertical: 4, paddingHorizontal: 12 };
-    
+
   const ctaPadding = isHorizontal
     ? { paddingHorizontal: 10, paddingVertical: 6 }
     : { paddingHorizontal: 10, paddingVertical: 10 };
 
+  const renderTopRightIcon = () => {
+    if (!topRightIconName) return null;
+
+    return (
+      <TouchableOpacity
+        style={styles.topRightIconContainer}
+        onPress={onTopRightIconPress}
+        activeOpacity={0.7}
+      >
+        <Ionicons
+          name={topRightIconName}
+          size={24}
+          color={isTopRightIconActive ? '#FF3B30' : '#000000'}
+        />
+      </TouchableOpacity>
+    );
+  };
+
   const renderImage = () => {
     if (!hasImage || !imageSource) return null;
-    
+
     return (
       <Image
         source={imageSource}
@@ -95,7 +119,7 @@ const Card: React.FC<CardProps> = ({
 
   const renderHeader = () => (
     <View style={styles.header}>
-      <Text 
+      <Text
         style={[styles.title, { fontSize: titleSize }]}
         numberOfLines={isHorizontal ? 2 : 1}
       >
@@ -113,10 +137,10 @@ const Card: React.FC<CardProps> = ({
 
   const renderDescription = () => {
     if (!description || !descriptionText) return null;
-    
+
     return (
       <View style={styles.descriptionContainer}>
-        <Text 
+        <Text
           style={[styles.descriptionText, { fontSize: descSize }]}
           numberOfLines={isHorizontal ? 2 : 3}
         >
@@ -135,11 +159,11 @@ const Card: React.FC<CardProps> = ({
 
   const renderCTA = () => {
     if (!cta) return null;
-    
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[
-          styles.ctaButton, 
+          styles.ctaButton,
           ctaPadding,
           isHorizontal && styles.horizontalCta
         ]}
@@ -154,13 +178,14 @@ const Card: React.FC<CardProps> = ({
   };
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={containerStyle}
       onPress={onPress}
       activeOpacity={onPress ? 0.95 : 1}
     >
+      {renderTopRightIcon()}
       {hasImage && renderImage()}
-      
+
       <View style={contentStyle}>
         {renderHeader()}
         {renderDescription()}
@@ -186,6 +211,15 @@ const styles = StyleSheet.create({
     width: 369,
     height: 163,
     flexDirection: 'row',
+  },
+  topRightIconContainer: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 1,
+    padding: 6,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   image: {
     backgroundColor: '#F0F0F0',

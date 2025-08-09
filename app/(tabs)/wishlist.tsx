@@ -48,24 +48,23 @@ export default function WishlistScreen() {
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         
         <Text style={styles.title}>Wishlist</Text>
-        {wishlist.length === 0 ? (
-          <View style={styles.center}>
-            <Text style={styles.emptyIcon}>💝</Text>
-            <Text style={styles.emptyText}>Your wishlist is empty</Text>
-            <Text style={styles.emptySubtext}>Save items you're interested in renting</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={wishlist}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => <RentalItemCard item={item} />}
-            contentContainerStyle={styles.listContentContainer}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-            showsVerticalScrollIndicator={false}
-          />
-        )}
+        <FlatList
+          data={wishlist}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => <RentalItemCard item={item} />}
+          contentContainerStyle={styles.listContentContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <Text style={styles.emptyIcon}>💝</Text>
+              <Text style={styles.emptyText}>Your wishlist is empty</Text>
+              <Text style={styles.emptySubtext}>Save items you're interested in renting</Text>
+            </View>
+          }
+        />
       </View>
     </ModeGuard>
   );
