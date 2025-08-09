@@ -11,6 +11,7 @@ import {
   NativeSyntheticEvent,
   TextInputFocusEventData
 } from 'react-native';
+import Colors from '@/constants/Colors';
 
 interface CustomTextInputProps extends Omit<TextInputProps, 'style' | 'onChangeText'> {
   title?: string;
@@ -80,19 +81,19 @@ const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
   };
 
   const getBorderColor = (): string => {
-    if (hasError) return '#FF3B30';
-    if (isFocused) return '#000000';
-    return 'rgba(60,60,67,0.6)';
+    if (hasError) return Colors.colors.red;
+    if (isFocused) return Colors.text.primary;
+    return Colors.text.secondary;
   };
 
   const getTextColor = (): string => {
-    if (hasError) return '#FF3B30';
-    if (hasValue) return '#000000';
-    return 'rgba(60,60,67,0.6)';
+    if (hasError) return Colors.colors.red;
+    if (hasValue) return Colors.text.primary;
+    return Colors.text.secondary;
   };
 
   const getHelperTextColor = (): string => {
-    return hasError ? '#FF3B30' : 'rgba(60,60,67,0.6)';
+    return hasError ? Colors.colors.red : Colors.text.secondary;
   };
 
   const displayText: string | undefined = hasError ? errorMessage : helperText;
@@ -131,7 +132,7 @@ const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          placeholderTextColor="rgba(60,60,67,0.6)"
+          placeholderTextColor={Colors.text.secondary}
           editable={!disabled}
           autoFocus={autoFocus}
           secureTextEntry={secureTextEntry}
@@ -139,8 +140,8 @@ const CustomTextInput = forwardRef<TextInput, CustomTextInputProps>(({
           maxLength={maxLength}
           multiline={multiline}
           numberOfLines={numberOfLines}
-          cursorColor={showCursor ? '#3770FF' : 'transparent'}
-          selectionColor="#3770FF"
+          cursorColor={showCursor ? Colors.brand.primary : 'transparent'}
+          selectionColor={Colors.brand.primary}
           {...props}
         />
       </View>
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   title: {
-    color: '#000000',
+    color: Colors.text.primary,
     fontSize: 13,
     fontFamily: 'SF Pro',
     fontWeight: '400',
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     paddingRight: 13,
-    backgroundColor: '#F7F7F7',
+    backgroundColor: Colors.background.secondary,
     borderWidth: 0.7,
     borderRadius: 10,
     gap: 11,

@@ -1,6 +1,15 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { 
+  Compass, 
+  Heart, 
+  Calendar, 
+  MessageCircle, 
+  User, 
+  BarChart3, 
+  List 
+} from 'lucide-react-native';
+import Colors from '@/constants/Colors';
 
 /**
  * Navigation mode type - either 'renter' or 'lender'
@@ -12,7 +21,7 @@ type NavMode = 'renter' | 'lender';
  */
 interface TabItem {
   label: string;
-  icon: React.ComponentProps<typeof FontAwesome>['name'];
+  icon: React.ComponentType<{ size?: number; color?: string }>;
 }
 
 /**
@@ -38,18 +47,18 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   // Configuration for both modes
   const navConfig: Record<NavMode, TabItem[]> = {
     renter: [
-      { label: 'Explore', icon: 'search' },
-      { label: 'Wishlist', icon: 'heart' },
-      { label: 'Bookings', icon: 'calendar' },
-      { label: 'Messages', icon: 'envelope' },
-      { label: 'Profile', icon: 'user' }
+      { label: 'Explore', icon: Compass },
+      { label: 'Wishlist', icon: Heart },
+      { label: 'Bookings', icon: Calendar },
+      { label: 'Messages', icon: MessageCircle },
+      { label: 'Profile', icon: User }
     ],
     lender: [
-      { label: 'Dashboard', icon: 'tachometer' },
-      { label: 'Listings', icon: 'list' },
-      { label: 'Bookings', icon: 'calendar' },
-      { label: 'Messages', icon: 'envelope' },
-      { label: 'Profile', icon: 'user' }
+      { label: 'Dashboard', icon: BarChart3 },
+      { label: 'Listings', icon: List },
+      { label: 'Bookings', icon: Calendar },
+      { label: 'Messages', icon: MessageCircle },
+      { label: 'Profile', icon: User }
     ]
   };
 
@@ -57,6 +66,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
   const renderTabItem = (item: TabItem, index: number) => {
     const isActive = activeTab === index;
+    const IconComponent = item.icon;
     
     return (
       <TouchableOpacity
@@ -70,16 +80,14 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         accessibilityState={{ selected: isActive }}
       >
         <View style={styles.iconContainer}>
-          <FontAwesome 
-            name={item.icon}
-            size={18}
-            color={isActive ? '#000000' : '#8E8E93'}
-            style={{ opacity: isActive ? 1 : 0.6 }}
+          <IconComponent 
+            size={24}
+            color={isActive ? Colors.text.primary : Colors.text.disabled}
           />
         </View>
         <Text style={[
           styles.tabLabel,
-          { color: isActive ? '#000000' : '#8E8E93' }
+          { color: isActive ? Colors.text.primary : Colors.text.disabled }
         ]}>
           {item.label}
         </Text>
@@ -101,40 +109,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: -1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 2,
+    paddingTop: 15,
+    paddingHorizontal: 11,
+    backgroundColor: Colors.background.primary,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: Colors.background.tertiary,
+    paddingBottom: 50,
   },
   tabItem: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    gap: 4,
-    paddingVertical: 4,
   },
   iconContainer: {
-    marginBottom: 4,
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 4,
   },
   tabLabel: {
     fontSize: 13,
     fontWeight: '600',
     fontFamily: 'System',
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 18,
   },
 });
 

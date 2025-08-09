@@ -8,9 +8,10 @@ import 'react-native-reanimated';
 import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider } from '@/lib/AuthContext';
 import { initializeNotifications } from '@/lib/notifications';
+import { typography } from '@/ui/typography';
+import Colors from '@/constants/Colors';
 
 export {
   ErrorBoundary,
@@ -110,11 +111,29 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  // Header style configuration for consistency
+  const headerTitleStyle = {
+    ...typography.title1Medium,
+    color: Colors.text.primary,
+  };
+
+  const screenOptions = {
+    headerTitleStyle,
+    headerStyle: {
+      backgroundColor: Colors.background.primary,
+      elevation: 0,
+      shadowOpacity: 0,
+      borderBottomWidth: 0,
+    },
+    headerTitleAlign: 'left' as const,
+    headerLeftContainerStyle: { paddingLeft: 0 },
+    headerRightContainerStyle: { paddingRight: 0 },
+    headerTitleContainerStyle: { paddingLeft: 0 },
+  };
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <ThemeProvider value={DefaultTheme}>
+      <Stack screenOptions={screenOptions}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />

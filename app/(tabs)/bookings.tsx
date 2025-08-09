@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import { getMyBookings, updateBookingStatus } from '@/lib/queries';
@@ -7,6 +7,10 @@ import { Booking } from '@/lib/supabase';
 import { handleBookingStatusChange } from '@/lib/notificationQueries';
 import { scheduleLocalNotification } from '@/lib/notifications';
 import { ModeGuard } from '../guards/ModeGuard';
+import Colors from '@/constants/Colors';
+import { typography } from '@/ui/typography';
+import Button from '@/ui/components/Button';
+import Card from '@/ui/components/Card';
 
 export default function BookingsScreen() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -100,12 +104,14 @@ export default function BookingsScreen() {
         <Text style={styles.price}>💰 ${booking.total_price}</Text>
         
         {booking.status === 'PENDING' && (
-          <TouchableOpacity
-            style={styles.cancelButton}
+          <Button
+            title="Cancel"
             onPress={() => handleCancelBooking(booking)}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
+            variant="filled"
+            size="small"
+            color="bw"
+            style={styles.cancelButton}
+          />
         )}
       </View>
     </View>
@@ -114,8 +120,8 @@ export default function BookingsScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2f95dc" />
-        <Text>Loading bookings...</Text>
+        <ActivityIndicator size="large" color={Colors.brand.primary} />
+        <Text style={styles.loadingText}>Loading bookings...</Text>
       </View>
     );
   }
@@ -128,6 +134,7 @@ export default function BookingsScreen() {
           renderItem={renderBooking}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContentContainer}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -146,11 +153,11 @@ export default function BookingsScreen() {
 
 function getStatusColor(status: string) {
   switch (status) {
-    case 'CONFIRMED': return '#4CAF50';
-    case 'PENDING': return '#FF9800';
-    case 'CANCELLED': return '#F44336';
-    case 'COMPLETED': return '#2196F3';
-    default: return '#666';
+    case 'CONFIRMED': return Colors.colors.green;
+    case 'PENDING': return Colors.colors.orange;
+    case 'CANCELLED': return Colors.colors.red;
+    case 'COMPLETED': return Colors.colors.blue;
+    default: return Colors.text.secondary;
   }
 }
 
@@ -158,16 +165,34 @@ function getStatusColor(status: string) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background.secondary,
+  },
+  headerContainer: {
+    backgroundColor: Colors.background.primary,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  title: {
+    ...typography.title1Medium,
+    color: Colors.text.primary,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingText: {
+    ...typography.bodyRegular,
+    color: Colors.text.secondary,
+    marginTop: 10,
+  },
+  listContentContainer: {
+    paddingBottom: 20,
+  },
   bookingCard: {
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
+    backgroundColor: Colors.background.primary,
+    marginHorizontal: 20,
     marginVertical: 8,
     padding: 16,
     borderRadius: 12,
@@ -184,8 +209,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   itemTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    ...typography.calloutEmphasized,
+    color: Colors.text.primary,
     flex: 1,
     marginRight: 12,
   },
@@ -195,18 +220,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    ...typography.caption1Emphasized,
+    color: Colors.background.primary,
   },
   dates: {
-    fontSize: 14,
-    color: '#666',
+    ...typography.subheadlineRegular,
+    color: Colors.text.secondary,
     marginBottom: 4,
   },
   location: {
-    fontSize: 14,
-    color: '#666',
+    ...typography.subheadlineRegular,
+    color: Colors.text.secondary,
     marginBottom: 12,
   },
   bookingFooter: {
@@ -215,36 +239,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   price: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2f95dc',
+    ...typography.calloutEmphasized,
+    color: Colors.brand.primary,
   },
   cancelButton: {
-    backgroundColor: '#FF5252',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  cancelButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    backgroundColor: Colors.colors.red,
   },
   messageContainer: {
     marginTop: 12,
     padding: 12,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 8,
   },
   messageLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
+    ...typography.caption1Emphasized,
+    color: Colors.text.secondary,
     marginBottom: 4,
   },
   messageText: {
-    fontSize: 14,
-    color: '#333',
+    ...typography.subheadlineRegular,
+    color: Colors.text.primary,
   },
   emptyContainer: {
     flex: 1,
@@ -257,13 +271,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...typography.headlineSemibold,
+    color: Colors.text.primary,
     marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: '#666',
+    ...typography.subheadlineRegular,
+    color: Colors.text.secondary,
     textAlign: 'center',
   },
 });

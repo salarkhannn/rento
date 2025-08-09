@@ -8,6 +8,7 @@ import { ModeGuard } from '../guards/ModeGuard';
 import SearchBar from '@/ui/components/SearchBar';
 import Chip from '@/ui/components/Chip';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
 
 export default function BrowseScreen() {
   const [items, setItems] = useState<RentalItem[]>([]);
@@ -75,7 +76,7 @@ export default function BrowseScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2f95dc" />
+        <ActivityIndicator size="large" color={Colors.brand.primary} />
         <Text style={styles.loadingText}>Loading items...</Text>
       </View>
     );
@@ -89,7 +90,7 @@ export default function BrowseScreen() {
             placeholder="Search items..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            iconSource={<Ionicons name="search" size={18} color="#8E8E93" />}
+            iconSource={<Ionicons name="search" size={18} color={Colors.text.disabled} />}
           />
         </View>
         <ScrollView
@@ -109,7 +110,7 @@ export default function BrowseScreen() {
                 outline={true}
                 leadingIcon={false}
                 trailingIcon={isSelected}
-                trailingIconSource={<Ionicons name="close" size={13} color="#3770FF" />}
+                trailingIconSource={<Ionicons name="close" size={13} color={Colors.brand.primary} />}
                 onPress={() => handleCategoryPress(category.name)}
                 style={styles.chip}
               />
@@ -124,6 +125,7 @@ export default function BrowseScreen() {
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="none"
           keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.listContentContainer}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -147,35 +149,32 @@ export default function BrowseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background.secondary,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: Colors.text.secondary,
   },
   searchContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    backgroundColor: Colors.background.primary,
+    paddingHorizontal: 20,
+    paddingBottom: 11,
+    paddingTop: 11,
   },
   categoryFilter: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    backgroundColor: Colors.background.primary,
     maxHeight: 60,
+    paddingHorizontal: 20,
+    paddingTop: 11,
+    paddingBottom: 11,
   },
   categoryFilterContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     alignItems: 'center',
   },
   chip: {
@@ -185,7 +184,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 100,
   },
   emptyText: {
     fontSize: 18,
@@ -195,6 +193,10 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.text.secondary,
+  },
+  listContentContainer: {
+    paddingHorizontal: 20,
+    gap: 10,
   },
 });

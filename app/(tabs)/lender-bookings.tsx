@@ -118,7 +118,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    elevation: 2,
   },
   itemTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
   actions: { flexDirection: 'row', marginTop: 12 },
