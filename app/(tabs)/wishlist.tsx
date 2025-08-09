@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { RentalItemCard } from '@/components/RentalItemCard';
+import { WishlistItemCard } from '@/components/WishlistItemCard';
 import { RentalItem } from '@/lib/supabase';
 import { getWishlistItems } from '@/lib/queries';
 import { ModeGuard } from '../guards/ModeGuard';
@@ -33,6 +33,10 @@ export default function WishlistScreen() {
     loadWishlist();
   };
 
+  const handleRemove = (itemId: string) => {
+    setWishlist((prev) => prev.filter((item) => item.id !== itemId));
+  };
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -51,7 +55,7 @@ export default function WishlistScreen() {
         <FlatList
           data={wishlist}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => <RentalItemCard item={item} />}
+          renderItem={({ item }) => <WishlistItemCard item={item} onRemove={handleRemove} />}
           contentContainerStyle={styles.listContentContainer}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

@@ -92,7 +92,10 @@ const Card: React.FC<CardProps> = ({
 
     return (
       <TouchableOpacity
-        style={styles.topRightIconContainer}
+        style={[
+          styles.topRightIconContainer,
+          isHorizontal && styles.topLeftIconContainer,
+        ]}
         onPress={onTopRightIconPress}
         activeOpacity={0.7}
       >
@@ -220,6 +223,10 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  topLeftIconContainer: {
+    right: 'auto',
+    left: 12,
   },
   image: {
     backgroundColor: '#F0F0F0',
