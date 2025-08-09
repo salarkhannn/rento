@@ -9,6 +9,7 @@ import {
   Image
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Colors from '@/constants/Colors';
 
 interface DatePickerFieldProps {
   title?: string;
@@ -55,18 +56,18 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
   };
 
   const getBorderColor = (): string => {
-    if (hasError) return '#FF3B30';
-    return 'rgba(60,60,67,0.6)';
+    if (hasError) return Colors.colors.red;
+    return Colors.text.secondary;
   };
 
   const getTextColor = (): string => {
-    if (hasError) return '#FF3B30';
-    if (hasValue) return '#000000';
-    return 'rgba(60,60,67,0.6)';
+    if (hasError) return Colors.colors.red;
+    if (hasValue) return Colors.text.primary;
+    return Colors.text.secondary;
   };
 
   const getHelperTextColor = (): string => {
-    return hasError ? '#FF3B30' : 'rgba(60,60,67,0.6)';
+    return hasError ? Colors.colors.red : Colors.text.secondary;
   };
 
   const displayText: string | undefined = hasError ? errorMessage : helperText;
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   title: {
-    color: '#000000',
+    color: Colors.text.primary,
     fontSize: 13,
     fontFamily: 'SF Pro',
     fontWeight: '400',
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     paddingRight: 13,
-    backgroundColor: '#F7F7F7',
+    backgroundColor: Colors.background.secondary,
     borderWidth: 0.7,
     borderRadius: 10,
     gap: 11,

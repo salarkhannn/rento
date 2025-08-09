@@ -9,6 +9,7 @@ import {
   TextStyle,
   GestureResponderEvent
 } from 'react-native';
+import Colors from '@/constants/Colors';
 
 type ButtonSize = 'small' | 'medium' | 'large';
 type ButtonVariant = 'filled' | 'tinted' | 'bordered' | 'plain';
@@ -48,16 +49,16 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   // Color definitions
   const colors = {
     colored: {
-      primary: '#3770FF',
-      primaryText: '#FFFFFF',
-      tintedBg: 'rgba(55,112,255,0.2)',
-      tintedText: '#3770FF',
+      primary: Colors.brand.primary,
+      primaryText: Colors.background.primary,
+      tintedBg: Colors.brand.primaryLight,
+      tintedText: Colors.brand.primary,
     },
     bw: {
-      primary: '#000000',
-      primaryText: '#FFFFFF',
+      primary: Colors.text.primary,
+      primaryText: Colors.background.primary,
       tintedBg: 'rgba(0,0,0,0.1)',
-      tintedText: '#000000',
+      tintedText: Colors.text.primary,
     }
   };
 
@@ -104,7 +105,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 
   // Get background color based on variant
   const getBackgroundColor = (): string => {
-    if (disabled) return '#F7F7F7';
+    if (disabled) return Colors.background.secondary;
     
     switch (variant) {
       case 'filled':
@@ -114,13 +115,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       case 'bordered':
       case 'plain':
       default:
-        return '#F7F7F7';
+        return Colors.background.secondary;
     }
   };
 
   // Get text color based on variant
   const getTextColor = (): string => {
-    if (disabled) return '#A0A0A0';
+    if (disabled) return Colors.text.disabled;
     
     switch (variant) {
       case 'filled':

@@ -8,6 +8,7 @@ import {
   TextInputProps,
   TouchableWithoutFeedback,
 } from 'react-native';
+import Colors from '@/constants/Colors';
 
 export type SearchBarVariant = 'active' | 'default' | 'disabled' | 'textEntered' | 'typing';
 
@@ -129,11 +130,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const getPlaceholderColor = () => {
     switch (currentVariant) {
       case 'disabled':
-        return 'rgba(60, 60, 67, 0.3)';
+        return Colors.text.tertiary;
       case 'active':
-        return 'rgba(60, 60, 67, 0.6)';
+        return Colors.text.secondary;
       default:
-        return 'rgba(60, 60, 67, 0.6)';
+        return Colors.text.secondary;
     }
   };
 
@@ -197,31 +198,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 15,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.primary,
     borderRadius: 25,
     borderWidth: 1,
     gap: 12,
   },
   defaultContainer: {
-    borderColor: 'rgba(60, 60, 67, 0.6)',
+    borderColor: Colors.text.secondary,
   },
   activeContainer: {
-    borderColor: '#3770FF',
-    shadowColor: 'rgba(55, 112, 255, 0.3)',
+    borderColor: Colors.brand.primary,
+    shadowColor: Colors.brand.primaryMedium,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
   },
   disabledContainer: {
-    borderColor: 'rgba(60, 60, 67, 0.3)',
+    borderColor: Colors.text.tertiary,
   },
   textEnteredContainer: {
-    borderColor: 'rgba(60, 60, 67, 0.6)',
+    borderColor: Colors.text.secondary,
   },
   typingContainer: {
-    borderColor: '#3770FF',
-    shadowColor: 'rgba(55, 112, 255, 0.3)',
+    borderColor: Colors.brand.primary,
+    shadowColor: Colors.brand.primaryMedium,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -251,31 +252,31 @@ const styles = StyleSheet.create({
     minHeight: 18,
   },
   defaultText: {
-    color: 'rgba(60, 60, 67, 0.6)',
+    color: Colors.text.secondary,
   },
   activeText: {
-    color: '#007AFF',
+    color: Colors.colors.blue,
   },
   disabledText: {
-    color: 'rgba(60, 60, 67, 0.3)',
+    color: Colors.text.tertiary,
   },
   textEnteredText: {
-    color: '#000000',
+    color: Colors.text.primary,
   },
   typingText: {
-    color: '#000000',
+    color: Colors.text.primary,
   },
   activeCursor: {
     position: 'absolute',
     left: 0,
-    color: '#007AFF',
+    color: Colors.colors.blue,
     fontSize: 12,
     fontFamily: 'Inter',
   },
   typingCursor: {
     position: 'absolute',
     right: -8,
-    color: '#007AFF',
+    color: Colors.colors.blue,
     fontSize: 12,
     fontFamily: 'Inter',
   },

@@ -9,6 +9,7 @@ import {
 import Chip from './Chip';
 import { PickupMethod } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
 
 interface CardProps {
   // Required props
@@ -102,7 +103,7 @@ const Card: React.FC<CardProps> = ({
         <Ionicons
           name={topRightIconName}
           size={24}
-          color={isTopRightIconActive ? '#FF3B30' : '#000000'}
+          color={isTopRightIconActive ? Colors.colors.red : Colors.text.primary}
         />
       </TouchableOpacity>
     );
@@ -201,7 +202,7 @@ const Card: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.primary,
     borderRadius: 21,
     overflow: 'hidden',
   },
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
     left: 12,
   },
   image: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.background.tertiary,
   },
   verticalImage: {
     width: '100%',
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    color: '#000000',
+    color: Colors.text.primary,
     fontWeight: '600',
   },
   priceContainer: {
@@ -262,13 +263,13 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   priceText: {
-    color: '#34C759',
+    color: Colors.colors.green,
   },
   descriptionContainer: {
     alignSelf: 'stretch',
   },
   descriptionText: {
-    color: 'rgba(38, 60, 58, 0.61)',
+    color: Colors.text.secondary,
     lineHeight: 16,
   },
   additionalInfoContainer: {
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   ctaButton: {
-    backgroundColor: '#3770FF',
+    backgroundColor: Colors.brand.primary,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
     height: 26,
   },
   ctaText: {
-    color: '#FFFFFF',
+    color: Colors.background.primary,
     fontWeight: '600',
   },
 });

@@ -9,6 +9,7 @@ import {
   TextStyle,
   ImageStyle,
 } from 'react-native';
+import Colors from '@/constants/Colors';
 
 export type ChipState = 'active' | 'default' | 'disabled' | 'focused' | 'hover' | 'pressed';
 
@@ -94,53 +95,53 @@ const Chip: React.FC<ChipProps> = ({
     switch (effectiveState) {
       case 'active':
         if (outline) {
-          baseStyle.backgroundColor = 'rgba(55, 112, 255, 0.2)';
+          baseStyle.backgroundColor = Colors.brand.primaryLight;
           baseStyle.borderWidth = 1;
-          baseStyle.borderColor = '#3770FF';
+          baseStyle.borderColor = Colors.brand.primary;
         } else {
-          baseStyle.backgroundColor = 'rgba(55, 112, 255, 0.3)';
+          baseStyle.backgroundColor = Colors.brand.primaryMedium;
         }
         break;
       case 'pressed':
-        baseStyle.backgroundColor = '#D1D1D6';
+        baseStyle.backgroundColor = Colors.background.tertiary;
         if (outline) {
           baseStyle.borderWidth = 1;
-          baseStyle.borderColor = '#C7C7CC';
+          baseStyle.borderColor = Colors.text.tertiary;
         }
         // Add shadow for pressed state
-        baseStyle.shadowColor = '#000';
+        baseStyle.shadowColor = Colors.text.primary;
         baseStyle.shadowOffset = { width: 0, height: 1 };
         baseStyle.shadowOpacity = 0.1;
         baseStyle.shadowRadius = 16;
         baseStyle.elevation = 8;
         break;
       case 'focused':
-        baseStyle.backgroundColor = '#D1D1D6';
+        baseStyle.backgroundColor = Colors.background.tertiary;
         if (outline) {
           baseStyle.borderWidth = 1;
-          baseStyle.borderColor = '#C7C7CC';
+          baseStyle.borderColor = Colors.text.tertiary;
         }
         break;
       case 'hover':
-        baseStyle.backgroundColor = outline ? 'transparent' : '#E5E5EA';
+        baseStyle.backgroundColor = outline ? 'transparent' : Colors.background.tertiary;
         if (outline) {
           baseStyle.borderWidth = 1;
-          baseStyle.borderColor = '#E5E5EA';
+          baseStyle.borderColor = Colors.background.tertiary;
         }
         break;
       case 'disabled':
-        baseStyle.backgroundColor = outline ? 'transparent' : '#F2F2F7';
+        baseStyle.backgroundColor = outline ? 'transparent' : Colors.background.secondary;
         baseStyle.opacity = 0.5;
         if (outline) {
           baseStyle.borderWidth = 1;
-          baseStyle.borderColor = '#E5E5EA';
+          baseStyle.borderColor = Colors.background.tertiary;
         }
         break;
       default: // default state
-        baseStyle.backgroundColor = outline ? 'transparent' : '#E5E5EA';
+        baseStyle.backgroundColor = outline ? 'transparent' : Colors.background.tertiary;
         if (outline) {
           baseStyle.borderWidth = 1;
-          baseStyle.borderColor = '#E5E5EA';
+          baseStyle.borderColor = Colors.background.tertiary;
         }
         break;
     }
@@ -159,13 +160,13 @@ const Chip: React.FC<ChipProps> = ({
 
     switch (effectiveState) {
       case 'active':
-        baseTextStyle.color = '#3770FF';
+        baseTextStyle.color = Colors.brand.primary;
         break;
       case 'disabled':
-        baseTextStyle.color = 'rgba(60, 60, 67, 0.3)';
+        baseTextStyle.color = Colors.text.tertiary;
         break;
       default:
-        baseTextStyle.color = 'rgba(60, 60, 67, 0.6)';
+        baseTextStyle.color = Colors.text.secondary;
         break;
     }
 

@@ -5,6 +5,7 @@ import { WishlistItemCard } from '@/components/WishlistItemCard';
 import { RentalItem } from '@/lib/supabase';
 import { getWishlistItems } from '@/lib/queries';
 import { ModeGuard } from '../guards/ModeGuard';
+import Colors from '@/constants/Colors';
 
 export default function WishlistScreen() {
   const [wishlist, setWishlist] = useState<RentalItem[]>([]);
@@ -77,7 +78,8 @@ export default function WishlistScreen() {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#f5f5f5' 
+    backgroundColor: Colors.background.primary,
+    paddingHorizontal: 20, 
   },
   title: { 
     fontSize: 24, 
@@ -115,5 +117,6 @@ const styles = StyleSheet.create({
   },
   listContentContainer: {
     alignItems: 'center',
+    gap: 10,
   },
 });

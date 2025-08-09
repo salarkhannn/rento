@@ -125,7 +125,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Explore',
+            title: 'Browse Items',
             tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
             href: mode === 'renter' ? '/' : null,
           }}
