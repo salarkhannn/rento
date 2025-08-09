@@ -7,10 +7,13 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { typography } from '@/ui/typography';
+import Button from '@/ui/components/Button';
+import Card from '@/ui/components/Card';
+import DatePickerField from '@/ui/components/DatePickerField';
 
 import Constants from 'expo-constants';
 
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { handleBookingRequest } from "@/lib/notificationQueries";
 import { NotificationTemplates, scheduleLocalNotification } from "@/lib/notifications";
 
@@ -22,9 +25,6 @@ export default function ItemDetailScreen() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-
-    const [showStartPicker, setShowStartPicker] = useState(false);
-    const [showEndPicker, setShowEndPicker] = useState(false);
 
     // console.log("EXECUTION ENVIRONMENT:", Constants.executionEnvironment);
 
@@ -142,8 +142,8 @@ export default function ItemDetailScreen() {
     if (loading) {
         return (
             <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color="#2f95dc" />
-                <Text>Loading item details...</Text>
+                <ActivityIndicator size="large" color={Colors.brand.primary} />
+                <Text style={styles.loadingText}>Loading item details...</Text>
             </View>
         )
     }
@@ -151,10 +151,12 @@ export default function ItemDetailScreen() {
     if (!item) {
         return (
             <View style={styles.centerContainer}>
-                <Text>Item not found</Text>
-                <TouchableOpacity style={styles.button} onPress={() => router.back()}>
-                    <Text style={styles.buttonText}>Go Back</Text>
-                </TouchableOpacity>
+                <Text style={styles.errorText}>Item not found</Text>
+                <Button 
+                    title="Go Back"
+                    onPress={() => router.back()}
+                    style={styles.button}
+                />
             </View>
         )
     }
@@ -201,64 +203,21 @@ export default function ItemDetailScreen() {
                         <Text style={styles.sectionTitle}>Book this item</Text>
 
                         <View style={styles.dateInputs}>
-                            <View style={styles.dateInput}>
-                                <Text style={styles.inputLabel}>Start Date (YYYY-MM-DD):</Text>
-                                <TouchableOpacity
-                                  style={styles.dateButton}
-                                  onPress={() => setShowStartPicker(true)}
-                                >
-                                  <Text style={[
-                                    styles.dateButtonText,
-                                    { color: startDate ? '#333' : '#999'}  
-                                  ]}>
-                                    {startDate || 'Select start date'}
-                                  </Text>
-                                </TouchableOpacity>
-                                
-                              {showStartPicker && (
-                                <DateTimePicker
-                                    value={startDate ? new Date(startDate) : new Date()}
-                                    mode="date"
-                                    display="default"
-                                    minimumDate={new Date()}
-                                    onChange={(event, selectedDate) => {
-                                      setShowStartPicker(false);
-                                      if (selectedDate) {
-                                        setStartDate(selectedDate.toISOString().split('T')[0]);
-                                      }
-                                    }}
-                                />
-                              )}
-                            </View>
-                            <View style={styles.dateInput}>
-                                <Text style={styles.inputLabel}>End Date (YYYY-MM-DD):</Text>
-                                <TouchableOpacity
-                                  style={styles.dateButton}
-                                  onPress={() => setShowEndPicker(true)}
-                                >
-                                  <Text style={[
-                                    styles.dateButtonText,
-                                    { color: endDate ? '#333' : '#999' }
-                                  ]}>
-                                      {endDate || 'Select end date'}
-                                  </Text>
-                                </TouchableOpacity>
-
-                                {showEndPicker && (
-                                  <DateTimePicker
-                                    value={endDate ? new Date(endDate) : new Date()}
-                                    mode="date"
-                                    display="default"
-                                    minimumDate={startDate ? new Date(startDate) : new Date()}
-                                    onChange={(event, selectedDate) => {
-                                      setShowEndPicker(false);
-                                      if (selectedDate) {
-                                        setEndDate(selectedDate.toISOString().split('T')[0]);
-                                      }
-                                    }}
-                                  />
-                                )}
-                            </View>
+                            <DatePickerField
+                                title="Start Date"
+                                placeholder="Select start date"
+                                value={startDate}
+                                onDateChange={setStartDate}
+                                style={styles.dateInput}
+                            />
+                            
+                            <DatePickerField
+                                title="End Date"
+                                placeholder="Select end date"
+                                value={endDate}
+                                onDateChange={setEndDate}
+                                style={styles.dateInput}
+                            />
 
                             {startDate && endDate && (
                                 <View style={styles.priceCalculation}>
@@ -268,22 +227,22 @@ export default function ItemDetailScreen() {
                                 </View>
                             )}
 
-                            <TouchableOpacity 
-                                style={[styles.bookButton, { opacity: bookingLoading ? 0.5 : 1 }]}
+                            <Button
+                                title={bookingLoading ? 'Creating Booking...' : 'Request Booking'}
                                 onPress={handleBooking}
                                 disabled={bookingLoading}
-                            >
-                                <Text style={styles.bookButtonText}>
-                                    {bookingLoading ? 'Creating Booking...' : 'Request Booking'}
-                                </Text>
-                            </TouchableOpacity>
+                                variant="filled"
+                                size="medium"
+                                style={styles.bookButton}
+                            />
 
-                            <TouchableOpacity
-                                style={styles.contactButton}
+                            <Button
+                                title="Contact Owner"
                                 onPress={() => router.push(`/conversation/${item.owner_id}?name=${encodeURIComponent(item.owner?.name || 'Owner')}`)}
-                            >
-                                <Text style={styles.contactButtonText}>Contact Owner</Text>
-                            </TouchableOpacity>
+                                variant="bordered"
+                                size="medium"
+                                style={styles.contactButton}
+                            />
                         </View>
                     </View>
                 )}
@@ -301,7 +260,7 @@ export default function ItemDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background.primary,
   },
   backButtonContainer: {
     position: 'absolute',
@@ -316,17 +275,22 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  loadingText: {
+    ...typography.bodyRegular,
+    color: Colors.text.secondary,
+    marginTop: 10,
+  },
+  errorText: {
+    ...typography.headlineSemibold,
+    color: Colors.text.primary,
+    marginBottom: 16,
   },
   image: {
     width: '100%',
@@ -335,16 +299,16 @@ const styles = StyleSheet.create({
   placeholderImage: {
     width: '100%',
     height: 300,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: Colors.background.tertiary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
-    color: '#666',
-    fontSize: 16,
+    ...typography.bodyRegular,
+    color: Colors.text.secondary,
   },
   content: {
-    padding: 16,
+    padding: 20,
   },
   header: {
     flexDirection: 'row',
@@ -353,45 +317,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...typography.title1Medium,
+    color: Colors.text.primary,
     flex: 1,
     marginRight: 16,
   },
   price: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#2f95dc',
+    ...typography.title2Regular,
+    color: Colors.brand.primary,
   },
   infoRow: {
     flexDirection: 'row',
     marginBottom: 8,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.calloutEmphasized,
+    color: Colors.text.primary,
     width: 80,
   },
   value: {
-    fontSize: 16,
+    ...typography.calloutRegular,
+    color: Colors.text.secondary,
     flex: 1,
-    color: '#666',
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...typography.headlineSemibold,
+    color: Colors.text.primary,
     marginTop: 20,
     marginBottom: 8,
   },
   description: {
-    fontSize: 16,
+    ...typography.bodyRegular,
+    color: Colors.text.primary,
     lineHeight: 24,
-    color: '#333',
   },
   bookingSection: {
     marginTop: 24,
-    padding: 16,
-    backgroundColor: '#f8f9fa',
     borderRadius: 12,
   },
   dateInputs: {
@@ -400,88 +361,36 @@ const styles = StyleSheet.create({
   dateInput: {
     marginBottom: 12,
   },
-  dateButton: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  dateButtonText: {
-      fontSize: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    fontSize: 16,
-  },
   priceCalculation: {
-    backgroundColor: '#e3f2fd',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: Colors.brand.primaryLight,
+    padding: 10,
+    borderRadius: 100,
     marginBottom: 16,
   },
   calculationText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1976d2',
+    ...typography.calloutEmphasized,
+    color: Colors.brand.primary,
     textAlign: 'center',
   },
   bookButton: {
-    backgroundColor: '#2f95dc',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  bookButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    marginBottom: 12,
+    width: '100%',
   },
   contactButton: {
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: '#2f95dc',
-    alignItems: 'center',
-  },
-  contactButtonText: {
-    color: '#2f95dc',
-    fontSize: 16,
-    fontWeight: '600',
+    marginTop: 0,
+    width: '100%',
   },
   button: {
-    backgroundColor: '#2f95dc',
-    padding: 12,
-    borderRadius: 8,
     marginTop: 16,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
   },
   unavailableSection: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: '#ffebee',
     borderRadius: 12,
     alignItems: 'center',
   },
   unavailableText: {
-    fontSize: 16,
-    color: '#c62828',
-    fontWeight: '600',
+    ...typography.calloutEmphasized,
+    color: Colors.colors.red,
   },
 });
