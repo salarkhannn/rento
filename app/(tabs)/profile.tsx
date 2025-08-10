@@ -4,7 +4,7 @@ import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/lib/AuthContext';
 import { getProfile } from '@/lib/queries';
 import { Profile } from '@/lib/supabase';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
@@ -20,6 +20,13 @@ export default function ProfileScreen() {
     loadProfile();
   }, []);
 
+  // Refresh profile when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadProfile();
+    }, [])
+  );
+
   const loadProfile = async () => {
     try {
       const data = await getProfile();
@@ -32,8 +39,7 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    // Create a simple edit profile modal or page
-    Alert.alert('Feature Coming Soon', 'Profile editing will be available in a future update.');
+    router.push('/edit-profile');
   };
 
   const handleBookings = () => {
