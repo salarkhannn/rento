@@ -58,13 +58,13 @@ export default function DashboardScreen() {
           const bookingDate = new Date(booking.created_at);
           return bookingDate.getMonth() === currentMonth && 
                  bookingDate.getFullYear() === currentYear &&
-                 booking.status === 'COMPLETED';
+                 (booking.status === 'COMPLETED' || booking.status === 'CONFIRMED');
         })
-        .reduce((sum, booking) => sum + booking.total_price, 0);
+        .reduce((sum, booking) => sum + Number(booking.total_price), 0);
 
       const totalEarnings = bookings
-        .filter(booking => booking.status === 'COMPLETED')
-        .reduce((sum, booking) => sum + booking.total_price, 0);
+        .filter(booking => booking.status === 'COMPLETED' || booking.status === 'CONFIRMED')
+        .reduce((sum, booking) => sum + Number(booking.total_price), 0);
 
       setStats({
         totalListings: listings.length,

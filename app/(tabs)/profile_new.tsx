@@ -44,14 +44,6 @@ export default function ProfileScreen() {
     router.push('/(tabs)/wishlist');
   };
 
-  const handleDashboard = () => {
-    router.push('/(tabs)/dashboard');
-  };
-
-  const handleListings = () => {
-    router.push('/(tabs)/listings');
-  };
-
   const handleNotifications = () => {
     router.push('/(tabs)/notifications');
   };
@@ -142,39 +134,19 @@ export default function ProfileScreen() {
 
       {/* Quick Actions */}
       <View style={styles.quickActions}>
-        {mode === 'lender' ? (
-          <>
-            <TouchableOpacity style={styles.quickActionItem} onPress={handleDashboard}>
-              <View style={styles.quickActionIcon}>
-                <Ionicons name="analytics-outline" size={24} color={Colors.brand.primary} />
-              </View>
-              <Text style={styles.quickActionLabel}>Dashboard</Text>
-            </TouchableOpacity>
+        <TouchableOpacity style={styles.quickActionItem} onPress={handleBookings}>
+          <View style={styles.quickActionIcon}>
+            <Ionicons name="calendar-outline" size={24} color={Colors.brand.primary} />
+          </View>
+          <Text style={styles.quickActionLabel}>Bookings</Text>
+        </TouchableOpacity>
 
-            <TouchableOpacity style={styles.quickActionItem} onPress={handleListings}>
-              <View style={styles.quickActionIcon}>
-                <Ionicons name="list-outline" size={24} color={Colors.brand.primary} />
-              </View>
-              <Text style={styles.quickActionLabel}>Listings</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <TouchableOpacity style={styles.quickActionItem} onPress={handleBookings}>
-              <View style={styles.quickActionIcon}>
-                <Ionicons name="calendar-outline" size={24} color={Colors.brand.primary} />
-              </View>
-              <Text style={styles.quickActionLabel}>Bookings</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.quickActionItem} onPress={handleWishlist}>
-              <View style={styles.quickActionIcon}>
-                <Ionicons name="heart-outline" size={24} color={Colors.brand.primary} />
-              </View>
-              <Text style={styles.quickActionLabel}>Wishlist</Text>
-            </TouchableOpacity>
-          </>
-        )}
+        <TouchableOpacity style={styles.quickActionItem} onPress={handleWishlist}>
+          <View style={styles.quickActionIcon}>
+            <Ionicons name="heart-outline" size={24} color={Colors.brand.primary} />
+          </View>
+          <Text style={styles.quickActionLabel}>Wishlist</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.quickActionItem} onPress={handleNotifications}>
           <View style={styles.quickActionIcon}>
@@ -190,7 +162,6 @@ export default function ProfileScreen() {
           title={mode === 'renter' ? 'Switch to lender' : 'Switch to renter'}
           onPress={handleSwitchMode}
           disabled={authLoading}
-          style={styles.fullWidthButton}
         />
       </View>
 
@@ -198,19 +169,6 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <TouchableOpacity style={styles.outlineButton} onPress={handleEditProfile}>
           <Text style={styles.outlineButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Sign Out */}
-      <View style={styles.section}>
-        <TouchableOpacity 
-          style={[styles.outlineButton, styles.signOutButton]} 
-          onPress={handleSignOut}
-          disabled={signingOut}
-        >
-          <Text style={[styles.outlineButtonText, styles.signOutButtonText]}>
-            {signingOut ? 'Signing Out...' : 'Sign Out'}
-          </Text>
         </TouchableOpacity>
       </View>
 
@@ -243,6 +201,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: Colors.background.primary,
     alignItems: 'center',
+    paddingVertical: 32,
     paddingHorizontal: 20,
   },
   avatarContainer: {
@@ -277,6 +236,7 @@ const styles = StyleSheet.create({
   quickActions: {
     flexDirection: 'row',
     backgroundColor: Colors.background.primary,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     justifyContent: 'space-around',
     borderBottomWidth: 1,
@@ -304,6 +264,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background.primary,
     marginTop: 16,
     paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   outlineButton: {
     borderWidth: 1,
@@ -327,14 +288,5 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     ...typography.calloutEmphasized,
     color: '#ffffff',
-  },
-  fullWidthButton: {
-    width: '100%',
-  },
-  signOutButton: {
-    borderColor: '#ff3b30',
-  },
-  signOutButtonText: {
-    color: '#ff3b30',
   },
 });

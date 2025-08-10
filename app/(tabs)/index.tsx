@@ -5,12 +5,14 @@ import { RentalItemCard } from '@/components/RentalItemCard';
 import { getCategories, getRentalItems } from '@/lib/queries';
 import { Category, RentalItem } from '@/lib/supabase';
 import { ModeGuard } from '../guards/ModeGuard';
+import { useAuth } from '@/lib/AuthContext';
 import SearchBar from '@/ui/components/SearchBar';
 import Chip from '@/ui/components/Chip';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 
 export default function BrowseScreen() {
+  const { user } = useAuth();
   const [items, setItems] = useState<RentalItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<RentalItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -26,8 +28,11 @@ export default function BrowseScreen() {
         getCategories()
       ]);
       
-      setItems(itemsData);
-      setFilteredItems(itemsData);
+      // Filter out user's own items
+      const otherUsersItems = itemsData.filter(item => item.owner_id !== user?.id);
+      
+      setItems(otherUsersItems);
+      setFilteredItems(otherUsersItems);
       setCategories(categoriesData);
     } catch (error) {
       console.error('Error loading data:', error);

@@ -8,12 +8,15 @@ import {
   Alert,
   RefreshControl,
   Image,
+  ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
 import { getConversations, getUnreadMessageCount } from '@/lib/queries';
 import { Message } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
+import { typography } from '@/ui/typography';
 
 export default function MessagesScreen() {
   const { user } = useAuth();
@@ -21,6 +24,7 @@ export default function MessagesScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Unread'>('All');
 
   useEffect(() => {
     if (user) {
@@ -38,6 +42,7 @@ export default function MessagesScreen() {
       Alert.alert('Error', 'Failed to load conversations');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -54,7 +59,6 @@ export default function MessagesScreen() {
     setRefreshing(true);
     await loadConversations();
     await loadUnreadCount();
-    setRefreshing(false);
   };
 
   const getOtherUser = (message: Message) => {
@@ -78,12 +82,17 @@ export default function MessagesScreen() {
   const openConversation = (message: Message) => {
     const otherUser = getOtherUser(message);
     if (otherUser) {
-      console.log('Navigating to conversation with user:', otherUser.id, otherUser.name);
-      // Use simple navigation with name in URL if available
       const userName = otherUser.name || 'Unknown User';
       router.push(`/conversation/${otherUser.id}?name=${encodeURIComponent(userName)}`);
     }
   };
+
+  const filteredConversations = conversations.filter(conversation => {
+    if (activeFilter === 'Unread') {
+      return !conversation.is_read && conversation.receiver_id === user?.id;
+    }
+    return true;
+  });
 
   const renderConversationItem = ({ item }: { item: Message }) => {
     const otherUser = getOtherUser(item);
@@ -91,32 +100,32 @@ export default function MessagesScreen() {
     
     return (
       <TouchableOpacity
-        style={[styles.conversationItem, isUnread && styles.unreadItem]}
+        style={styles.conversationItem}
         onPress={() => openConversation(item)}
       >
         <View style={styles.avatarContainer}>
           {otherUser?.avatar_url ? (
             <Image source={{ uri: otherUser.avatar_url }} style={styles.avatar} />
           ) : (
-            <View style={styles.avatarPlaceholder}>
-              <FontAwesome name="user" size={24} color="#666" />
+            <View style={styles.defaultAvatar}>
+              <Text style={styles.avatarText}>
+                {otherUser?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </Text>
             </View>
           )}
         </View>
         
-        <View style={styles.conversationContent}>
-          <View style={styles.conversationHeader}>
-            <Text style={[styles.userName, isUnread && styles.unreadText]}>
-              {otherUser?.name || 'Unknown User'}
+        <View style={styles.messageContent}>
+          <View style={styles.messageHeader}>
+            <Text style={styles.userName}>
+              {otherUser?.name || 'User name'}
             </Text>
-            <Text style={styles.timeText}>{formatTime(item.created_at)}</Text>
+            <Text style={styles.timestamp}>
+              {formatTime(item.created_at)}
+            </Text>
           </View>
-          
-          <Text
-            style={[styles.lastMessage, isUnread && styles.unreadText]}
-            numberOfLines={1}
-          >
-            {item.sender_id === user?.id ? 'You: ' : ''}{item.content}
+          <Text style={styles.messageText} numberOfLines={1}>
+            {item.content}
           </Text>
         </View>
         
@@ -127,30 +136,59 @@ export default function MessagesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading messages...</Text>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Messages</Text>
+        </View>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading messages...</Text>
+        </View>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {conversations.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <FontAwesome name="comments-o" size={64} color="#ccc" />
-          <Text style={styles.emptyTitle}>No conversations yet</Text>
-          <Text style={styles.emptyText}>
-            Start a conversation by contacting item owners or responding to booking requests.
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[styles.filterButton, activeFilter === 'All' && styles.activeFilterButton]}
+          onPress={() => setActiveFilter('All')}
+        >
+          <Text style={[styles.filterText, activeFilter === 'All' && styles.activeFilterText]}>
+            All
           </Text>
-        </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.filterButton, activeFilter === 'Unread' && styles.activeFilterButton]}
+          onPress={() => setActiveFilter('Unread')}
+        >
+          <Text style={[styles.filterText, activeFilter === 'Unread' && styles.activeFilterText]}>
+            Unread
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {filteredConversations.length === 0 ? (
+        <ScrollView
+          contentContainerStyle={styles.emptyContainer}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          <View style={styles.emptyState}>
+            <Ionicons name="chatbubbles-outline" size={64} color={Colors.text.disabled} />
+            <Text style={styles.emptyTitle}>No messages yet</Text>
+            <Text style={styles.emptySubtitle}>
+              Start a conversation by contacting item owners
+            </Text>
+          </View>
+        </ScrollView>
       ) : (
         <FlatList
-          data={conversations}
+          data={filteredConversations}
           keyExtractor={(item) => item.id}
           renderItem={renderConversationItem}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
       )}
@@ -161,96 +199,132 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background.secondary,
+  },
+  header: {
+    backgroundColor: Colors.background.primary,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e5e5',
+  },
+  headerTitle: {
+    ...typography.title1Medium,
+    color: Colors.text.primary,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: Colors.background.primary,
+    gap: 12,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: Colors.background.secondary,
+  },
+  activeFilterButton: {
+    backgroundColor: Colors.brand.primary,
+  },
+  filterText: {
+    ...typography.footnoteRegular,
+    color: Colors.text.secondary,
+  },
+  activeFilterText: {
+    color: '#ffffff',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   loadingText: {
-    fontSize: 16,
-    color: '#666',
+    ...typography.bodyRegular,
+    color: Colors.text.secondary,
   },
   emptyContainer: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 48,
+    paddingHorizontal: 20,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
+    ...typography.title3Emphasized,
+    color: Colors.text.primary,
     marginTop: 16,
     marginBottom: 8,
   },
-  emptyText: {
-    fontSize: 14,
-    color: '#666',
+  emptySubtitle: {
+    ...typography.bodyRegular,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    lineHeight: 20,
+  },
+  listContainer: {
+    paddingVertical: 8,
   },
   conversationItem: {
     flexDirection: 'row',
-    padding: 16,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: Colors.background.primary,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#fff',
-  },
-  unreadItem: {
-    backgroundColor: '#f8f9ff',
+    borderBottomColor: '#e5e5e5',
   },
   avatarContainer: {
-    marginRight: 12,
+    marginRight: 16,
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
-  avatarPlaceholder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#f0f0f0',
+  defaultAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.background.tertiary,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  conversationContent: {
-    flex: 1,
+  avatarText: {
+    ...typography.calloutEmphasized,
+    color: Colors.text.secondary,
   },
-  conversationHeader: {
+  messageContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  messageHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
   },
   userName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    ...typography.calloutEmphasized,
+    color: Colors.text.primary,
     flex: 1,
   },
-  unreadText: {
-    fontWeight: 'bold',
+  timestamp: {
+    ...typography.caption1Regular,
+    color: Colors.text.tertiary,
   },
-  timeText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  lastMessage: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 18,
+  messageText: {
+    ...typography.footnoteRegular,
+    color: Colors.text.secondary,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#007AFF',
-    marginLeft: 8,
-    alignSelf: 'center',
+    backgroundColor: Colors.brand.primary,
   },
 });

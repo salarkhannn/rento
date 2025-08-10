@@ -1,4 +1,6 @@
-import { supabase, RentalItem, Booking, Profile, Category, Wishlist, Message } from "./supabase";
+import { supabase } from './supabase';
+import { Profile, RentalItem, Booking, Message, Category, Wishlist, Notification as DbNotification } from './supabase';
+import { Notification } from './notificationQueries';
 
 // Rental Item Queries
 export const getRentalItems = async (): Promise<RentalItem[]> => {
@@ -435,4 +437,19 @@ export const getUnreadMessageCount = async (): Promise<number> => {
 
     if (error) return 0;
     return count || 0;
+};
+
+// Notification queries
+export const getNotifications = async (): Promise<Notification[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
 };
