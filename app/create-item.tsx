@@ -79,7 +79,10 @@ export default function CreateItemScreen() {
         .from('rental-images')
         .upload(filename, formData);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Storage upload error:', error);
+        throw error;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('rental-images')
@@ -88,6 +91,10 @@ export default function CreateItemScreen() {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
+      Alert.alert(
+        'Image Upload Failed', 
+        'Unable to upload image. The listing will be created without a photo. You can add photos later.'
+      );
       return null;
     } finally {
       setUploading(false);
@@ -120,15 +127,21 @@ export default function CreateItemScreen() {
     try {
       let imageUrl: string | null = null;
 
+      // Only try to upload image if we have one
       if (imageUri) {
-        imageUrl = await uploadImage(imageUri);
+        try {
+          imageUrl = await uploadImage(imageUri);
+        } catch (imageError) {
+          console.error('Image upload failed, continuing without image:', imageError);
+          // Continue creating the listing without image
+        }
       }
 
-      await createRentalItem({
-        title,
-        description,
+      const itemData = {
+        title: title.trim(),
+        description: description.trim(),
         price: priceNumber,
-        location,
+        location: location.trim(),
         category,
         owner_id: user.id,
         is_available: true,
@@ -140,7 +153,10 @@ export default function CreateItemScreen() {
         available_from: availability.availableFrom || undefined,
         available_to: availability.availableTo || undefined,
         pickup_method: pickupMethod,
-      });
+      };
+
+      console.log('Creating rental item with data:', itemData);
+      await createRentalItem(itemData);
 
       Alert.alert(
         'Success',
@@ -149,7 +165,15 @@ export default function CreateItemScreen() {
       );
     } catch (error) {
       console.error('Error creating item:', error);
-      Alert.alert('Error', 'Failed to create item. Please try again.');
+      let errorMessage = 'Failed to create item. Please try again.';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message.includes('permission') 
+          ? 'Permission denied. Please check your account settings.'
+          : `Failed to create item: ${error.message}`;
+      }
+      
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }

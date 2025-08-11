@@ -1,9 +1,23 @@
 
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import MapView, { Marker, Region } from "react-native-maps";
-import * as Location from "expo-location";
+import { ActivityIndicator, Alert, StyleSheet, TextInput, TouchableOpacity, Platform } from "react-native";
 import { Text, View } from "./Themed";
+
+// Conditional import for maps to prevent crashes if not properly configured
+let MapView: any;
+let Marker: any;
+
+try {
+    const MapsModule = require("react-native-maps");
+    MapView = MapsModule.default;
+    Marker = MapsModule.Marker;
+} catch (error) {
+    console.warn("React Native Maps not available:", error);
+    MapView = null;
+    Marker = null;
+}
+
+import * as Location from "expo-location";
 
 interface PickupLocationInputProps {
     onLocationChange: (location: {
@@ -18,6 +32,13 @@ interface PickupLocationInputProps {
     };
 }
 
+interface Region {
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+}
+
 export function PickupLocationInput({ onLocationChange, initialLocation }: PickupLocationInputProps) {
     const [region, setRegion] = useState<Region>({
         latitude: 37.7749,
@@ -30,8 +51,10 @@ export function PickupLocationInput({ onLocationChange, initialLocation }: Picku
         longitude: -122.4194,
     });
     const [address, setAddress] = useState<string | null>(null);
+    const [manualAddress, setManualAddress] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [locationPermission, setLocationPermission] = useState<boolean>(false);
+    const [useManualEntry, setUseManualEntry] = useState(!MapView); // Use manual entry if maps not available
 
     useEffect(() => {
         if (initialLocation) {
@@ -47,28 +70,33 @@ export function PickupLocationInput({ onLocationChange, initialLocation }: Picku
                 longitude: initialLocation.longitude,
             });
             setAddress(initialLocation.address);
+            setManualAddress(initialLocation.address);
             setLoading(false);
-        } else {
+        } else if (!useManualEntry) {
             getCurrentLocation();
         }
-    }, [initialLocation]);
+    }, [initialLocation, useManualEntry]);
 
     const getCurrentLocation = async () => {
         try {
+            setLoading(true);
             const { status } = await Location.requestForegroundPermissionsAsync();
 
             if (status !== 'granted') {
                 setLocationPermission(false);
+                setUseManualEntry(true);
                 Alert.alert(
                     'Permission Denied',
-                    'Location permission is required to access your current location. Please enable it in settings.',
+                    'Location permission is required to access your current location. You can manually enter the address instead.',
                 );
                 setLoading(false);
                 return;
             }
 
             setLocationPermission(true);
-            const location = await Location.getCurrentPositionAsync({});
+            const location = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
+            });
             const { latitude, longitude } = location.coords;
 
             const newRegion: Region = {
@@ -84,6 +112,7 @@ export function PickupLocationInput({ onLocationChange, initialLocation }: Picku
             // Get address from coordinates
             const addressResult = await reverseGeocode(latitude, longitude);
             setAddress(addressResult);
+            setManualAddress(addressResult);
 
             onLocationChange({
                 latitude,
@@ -92,7 +121,8 @@ export function PickupLocationInput({ onLocationChange, initialLocation }: Picku
             });
         } catch (error) {
             console.error('Error getting current location:', error);
-            Alert.alert('Error', 'Unable to get current location. Please try again later.');
+            setUseManualEntry(true);
+            Alert.alert('Error', 'Unable to get current location. Please enter the address manually.');
         } finally {
             setLoading(false);
         }
@@ -139,6 +169,7 @@ export function PickupLocationInput({ onLocationChange, initialLocation }: Picku
         if (!address?.trim()) return;
 
         try {
+            setLoading(true);
             const result = await Location.geocodeAsync(address);
             if (result.length > 0) {
                 const { latitude, longitude } = result[0];
@@ -158,11 +189,23 @@ export function PickupLocationInput({ onLocationChange, initialLocation }: Picku
                     address: address.trim(),
                 });
             } else {
-                Alert.alert('Error', 'No location found for the provided address.');
+                // If geocoding fails but we have an address, use default coordinates
+                onLocationChange({
+                    latitude: 37.7749, // Default to San Francisco
+                    longitude: -122.4194,
+                    address: address.trim(),
+                });
             }
         } catch (error) {
             console.error('Error geocoding address:', error);
-            Alert.alert('Error', 'Unable to find the provided address. Please try again.');
+            // Even if geocoding fails, allow manual address entry
+            onLocationChange({
+                latitude: 37.7749, // Default to San Francisco
+                longitude: -122.4194,
+                address: address.trim(),
+            });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -193,22 +236,30 @@ export function PickupLocationInput({ onLocationChange, initialLocation }: Picku
                 </TouchableOpacity>
             </View>
 
-            <MapView
-                style={styles.map}
-                region={region}
-                onRegionChangeComplete={setRegion}
-                onPress={handleMapPress}
-                showsUserLocation={locationPermission}
-                showsMyLocationButton={true}
-            >
-                <Marker
-                    coordinate={markedCoordinate}
-                    title="Pickup Location"
-                    description={address || 'No address selected'}
-                    draggable
-                    onDragEnd={handleMapPress}
-                />
-            </MapView>
+            {MapView && Marker ? (
+                <MapView
+                    style={styles.map}
+                    region={region}
+                    onRegionChangeComplete={setRegion}
+                    onPress={handleMapPress}
+                    showsUserLocation={locationPermission}
+                    showsMyLocationButton={true}
+                >
+                    <Marker
+                        coordinate={markedCoordinate}
+                        title="Pickup Location"
+                        description={address || 'No address selected'}
+                        draggable
+                        onDragEnd={handleMapPress}
+                    />
+                </MapView>
+            ) : (
+                <View style={styles.mapPlaceholder}>
+                    <Text style={styles.mapPlaceholderText}>
+                        📍 Map not available. Please enter address manually.
+                    </Text>
+                </View>
+            )}
 
             {!locationPermission && (
                 <TouchableOpacity style={styles.locationButton} onPress={getCurrentLocation}>
@@ -268,6 +319,23 @@ const styles = StyleSheet.create({
         height: 200,
         borderRadius: 8,
         marginBottom: 10,
+    },
+    mapPlaceholder: {
+        height: 200,
+        borderRadius: 8,
+        marginBottom: 10,
+        backgroundColor: '#f0f0f0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderStyle: 'dashed',
+    },
+    mapPlaceholderText: {
+        color: '#666',
+        fontSize: 14,
+        textAlign: 'center',
+        fontStyle: 'italic',
     },
     locationButton: {
         backgroundColor: '#4CAF50',
