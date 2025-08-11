@@ -79,30 +79,6 @@ export default function AuthStartScreen() {
         <Text style={styles.text}>or</Text>
         <View style={styles.line} />
       </View>
-
-      <View style={styles.socialButtonsContainer}>
-        <CustomButton
-          title="Continue with Facebook"
-          size="medium"
-          variant="bordered"
-          color="colored"
-          style={{ width: '100%' }}
-        />
-        <CustomButton
-          title="Continue with Google"
-          size="medium"
-          variant="bordered"
-          color="colored"
-          style={{ width: '100%' }}
-        />
-        <CustomButton
-          title="Continue with Apple"
-          size="medium"
-          variant="bordered"
-          color="colored"
-          style={{ width: '100%' }}
-        />
-      </View>
     </View>
   );
 }

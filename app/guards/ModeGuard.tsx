@@ -37,3 +37,5 @@ export const ModeGuard: React.FC<ModeGuardProps> = ({ requiredMode, children }) 
 
     return <>{children}</>;
 }
+
+export default ModeGuard;
