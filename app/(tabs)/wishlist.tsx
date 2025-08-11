@@ -4,14 +4,16 @@ import { Text, View } from '@/components/Themed';
 import { WishlistItemCard } from '@/components/WishlistItemCard';
 import { RentalItem } from '@/lib/supabase';
 import { getWishlistItems } from '@/lib/queries';
-import { ModeGuard } from '../guards/ModeGuard';
+import { ConditionalAuthGuard } from '@/components/ConditionalAuthGuard';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import { router } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { getUnreadNotificationCount } from '@/lib/notificationQueries';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function WishlistScreen() {
+  const insets = useSafeAreaInsets();
   const [wishlist, setWishlist] = useState<RentalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -92,9 +94,12 @@ export default function WishlistScreen() {
   }
 
   return (
-    <ModeGuard requiredMode="renter">
+    <ConditionalAuthGuard 
+      requireAuth={true} 
+      message="Please sign in to view your wishlist."
+    >
       <View style={styles.container}>
-        <View style={styles.headerContainer}>
+        <View style={[styles.headerContainer, { paddingTop: insets.top + 20 }]}>
           <Text style={styles.title}>Wishlist</Text>
           <NotificationsIcon />
         </View>
@@ -115,7 +120,7 @@ export default function WishlistScreen() {
           }
         />
       </View>
-    </ModeGuard>
+    </ConditionalAuthGuard>
   );
 }
 
@@ -127,7 +132,6 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: Colors.background.primary,
     paddingHorizontal: 20,
-    paddingTop: 20,
     paddingBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',

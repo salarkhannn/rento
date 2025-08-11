@@ -5,6 +5,7 @@ import { RentalItem } from "@/lib/supabase";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import { useAuthAction } from "@/components/ConditionalAuthGuard";
 
 import Constants from 'expo-constants';
 
@@ -14,7 +15,8 @@ import { NotificationTemplates, scheduleLocalNotification } from "@/lib/notifica
 
 export default function ItemDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { user, mode } = useAuth();
+    const { user, mode, session } = useAuth();
+    const { requireAuth } = useAuthAction();
     const [item, setItem] = useState<RentalItem | null>(null);
     const [loading, setLoading] = useState(true);
     const [bookingLoading, setBookingLoading] = useState(false);
@@ -55,36 +57,39 @@ export default function ItemDetailScreen() {
     };
 
     const handleBooking = async () => {
-        if (!item || !user) {
-            Alert.alert('Error', 'Please sign in to make a booking');
-            return;
-        }
+        // Use requireAuth to check if user is authenticated before proceeding
+        requireAuth(async () => {
+            if (!item || !user) {
+                Alert.alert('Error', 'Unable to proceed with booking');
+                return;
+            }
 
-        if (!startDate || !endDate) {
-            Alert.alert('Error', 'Please select both start and end dates');
-            return;
-        }
+            if (!startDate || !endDate) {
+                Alert.alert('Error', 'Please select both start and end dates');
+                return;
+            }
 
-        if (new Date(startDate) >= new Date(endDate)) {
-            Alert.alert('Error', 'End date must be after start date');
-            return;
-        }
+            if (new Date(startDate) >= new Date(endDate)) {
+                Alert.alert('Error', 'End date must be after start date');
+                return;
+            }
 
-        if (user.id === item.owner_id) {
-            Alert.alert('Error', 'You cannot book your own item');
-            return;
-        }
+            if (user.id === item.owner_id) {
+                Alert.alert('Error', 'You cannot book your own item');
+                return;
+            }
 
-        const totalPrice = calculateTotalPrice();
+            const totalPrice = calculateTotalPrice();
 
-        Alert.alert(
-            'Confirm Booking',
-            `Book ${item.title} from ${startDate} to ${endDate} for $${totalPrice}?`,
-            [
-                { text: 'Cancel' },
-                { text: 'Confirm', onPress: confirmBooking },
-            ]
-        );
+            Alert.alert(
+                'Confirm Booking',
+                `Book ${item.title} from ${startDate} to ${endDate} for $${totalPrice}?`,
+                [
+                    { text: 'Cancel' },
+                    { text: 'Confirm', onPress: confirmBooking },
+                ]
+            );
+        }, "Please sign in to make a booking.");
     };
 
     const confirmBooking = async () => {
@@ -261,7 +266,10 @@ export default function ItemDetailScreen() {
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity 
                                     style={styles.contactButton}
-                                    onPress={() => router.push(`/conversation/${item.owner_id}?name=${encodeURIComponent(item.owner?.name || 'Owner')}`)}
+                                    onPress={() => requireAuth(
+                                        () => router.push(`/conversation/${item.owner_id}?name=${encodeURIComponent(item.owner?.name || 'Owner')}`),
+                                        "Please sign in to contact the owner."
+                                    )}
                                 >
                                     <Text style={styles.contactButtonText}>Contact Owner</Text>
                                 </TouchableOpacity>

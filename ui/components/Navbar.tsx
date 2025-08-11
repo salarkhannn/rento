@@ -12,9 +12,9 @@ import {
 import Colors from '@/constants/Colors';
 
 /**
- * Navigation mode type - either 'renter' or 'lender'
+ * Navigation mode type - 'renter', 'lender', or 'guest'
  */
-type NavMode = 'renter' | 'lender';
+type NavMode = 'renter' | 'lender' | 'guest';
 
 /**
  * Individual tab item configuration
@@ -44,8 +44,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   activeTab = 0,
   onTabPress 
 }) => {
-  // Configuration for both modes
+  // Configuration for all modes
   const navConfig: Record<NavMode, TabItem[]> = {
+    guest: [
+      { label: 'Explore', icon: Compass },
+      { label: 'Sign In', icon: User },
+    ],
     renter: [
       { label: 'Explore', icon: Compass },
       { label: 'Wishlist', icon: Heart },
@@ -62,7 +66,16 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     ]
   };
 
-  const currentConfig = navConfig[mode];
+  const currentConfig = navConfig[mode || 'renter'];
+
+  // Safety check to prevent map error
+  if (!currentConfig) {
+    return (
+      <View style={styles.container} accessible={true} accessibilityRole="tablist">
+        {/* Render empty navigation while mode is loading */}
+      </View>
+    );
+  }
 
   const renderTabItem = (item: TabItem, index: number) => {
     const isActive = activeTab === index;

@@ -17,6 +17,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
+import { ConditionalAuthGuard } from '@/components/ConditionalAuthGuard';
 
 export default function MessagesScreen() {
   const { user } = useAuth();
@@ -148,7 +149,11 @@ export default function MessagesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ConditionalAuthGuard 
+      requireAuth={true} 
+      message="Please sign in to view your messages."
+    >
+      <View style={styles.container}>
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[styles.filterButton, activeFilter === 'All' && styles.activeFilterButton]}
@@ -193,6 +198,7 @@ export default function MessagesScreen() {
         />
       )}
     </View>
+    </ConditionalAuthGuard>
   );
 }
 

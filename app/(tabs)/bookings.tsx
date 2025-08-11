@@ -6,7 +6,7 @@ import { getMyBookings, updateBookingStatus } from '@/lib/queries';
 import { Booking } from '@/lib/supabase';
 import { handleBookingStatusChange } from '@/lib/notificationQueries';
 import { scheduleLocalNotification } from '@/lib/notifications';
-import { ModeGuard } from '../guards/ModeGuard';
+import { ConditionalAuthGuard } from '@/components/ConditionalAuthGuard';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
@@ -127,7 +127,10 @@ export default function BookingsScreen() {
   }
 
   return (
-    <ModeGuard requiredMode='renter'>
+    <ConditionalAuthGuard 
+      requireAuth={true} 
+      message="Please sign in to view your bookings."
+    >
       <View style={styles.container}>
         <FlatList
           data={bookings}
@@ -147,7 +150,7 @@ export default function BookingsScreen() {
           }
         />
       </View>
-    </ModeGuard>
+    </ConditionalAuthGuard>
   );
 }
 

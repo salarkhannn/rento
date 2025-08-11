@@ -4,7 +4,6 @@ import { Text, View } from '@/components/Themed';
 import { RentalItemCard } from '@/components/RentalItemCard';
 import { getCategories, getRentalItems } from '@/lib/queries';
 import { Category, RentalItem } from '@/lib/supabase';
-import { ModeGuard } from '../guards/ModeGuard';
 import { useAuth } from '@/lib/AuthContext';
 import SearchBar from '@/ui/components/SearchBar';
 import Chip from '@/ui/components/Chip';
@@ -28,11 +27,13 @@ export default function BrowseScreen() {
         getCategories()
       ]);
       
-      // Filter out user's own items
-      const otherUsersItems = itemsData.filter(item => item.owner_id !== user?.id);
+      // Filter out user's own items only if user is authenticated
+      const availableItems = user 
+        ? itemsData.filter(item => item.owner_id !== user.id)
+        : itemsData;
       
-      setItems(otherUsersItems);
-      setFilteredItems(otherUsersItems);
+      setItems(availableItems);
+      setFilteredItems(availableItems);
       setCategories(categoriesData);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -88,8 +89,7 @@ export default function BrowseScreen() {
   }
 
   return (
-    <ModeGuard requiredMode='renter'>
-      <View style={styles.container}>
+    <View style={styles.container}>
         <View style={styles.searchContainer}>
           <SearchBar
             placeholder="Search items..."
@@ -147,7 +147,6 @@ export default function BrowseScreen() {
           }
         />
       </View>
-    </ModeGuard>
   );
 }
 

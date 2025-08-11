@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
+import { ConditionalAuthGuard } from '@/components/ConditionalAuthGuard';
 
 export default function ProfileScreen() {
   const { user, signOut, mode, switchMode, loading: authLoading } = useAuth();
@@ -123,7 +124,11 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ConditionalAuthGuard 
+      requireAuth={true} 
+      message="Please sign in to view your profile."
+    >
+      <ScrollView style={styles.container}>
       {/* Profile Header */}
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
@@ -227,6 +232,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </ConditionalAuthGuard>
   );
 }
 

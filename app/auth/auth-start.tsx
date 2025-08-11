@@ -74,11 +74,11 @@ export default function AuthStartScreen() {
         style={{ width: '100%', marginBottom: 15 }}
       />
 
-      <View style={styles.dividerContainer}>
+      {/* <View style={styles.dividerContainer}>
         <View style={styles.line} />
         <Text style={styles.text}>or</Text>
         <View style={styles.line} />
-      </View>
+      </View> */}
     </View>
   );
 }

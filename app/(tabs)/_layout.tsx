@@ -9,7 +9,6 @@ import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import { AuthGuard } from '@/components/AuthGaurd';
 import { getUnreadNotificationCount } from '@/lib/notificationQueries';
 import { useAuth } from '@/lib/AuthContext';
 import NavigationBar from '@/ui/components/Navbar';
@@ -22,13 +21,17 @@ function TabBarIcon(props: {
 }
 
 function NotificationsIcon() {
+  const { session, isInitialized } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    // Only load notifications if user is authenticated
+    if (session && isInitialized) {
+      loadUnreadCount();
+      const interval = setInterval(loadUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [session, isInitialized]);
 
   const loadUnreadCount = async () => {
     try {
@@ -38,6 +41,11 @@ function NotificationsIcon() {
       console.error('Error loading unread notification count:', error);
     }
   };
+
+  // Don't show notifications icon if not authenticated
+  if (!session || !isInitialized) {
+    return null;
+  }
 
   return (
     <Pressable onPress={() => router.push('/(tabs)/notifications')}>
@@ -63,9 +71,39 @@ function NotificationsIcon() {
 }
 
 function CustomTabBar() {
-  const { mode } = useAuth();
+  const { mode, session, loading, isInitialized } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+  
+  // If user is not authenticated, only show the browse tab
+  if (!session) {
+    return (
+      <NavigationBar
+        mode="guest"
+        activeTab={0}
+        onTabPress={(index, label) => {
+          // For guest mode, handle navigation appropriately
+          if (index === 0) {
+            router.push('/(tabs)/' as any);
+          } else if (index === 1) {
+            // Navigate to sign in
+            router.push('/auth/auth-start');
+          }
+        }}
+      />
+    );
+  }
+
+  // If user is authenticated but mode is not yet loaded, show loading state
+  if (session && (!mode || !isInitialized)) {
+    return (
+      <NavigationBar
+        mode="renter"
+        activeTab={0}
+        onTabPress={() => {}}
+      />
+    );
+  }
   
   // Determine the active tab based on current route
   const getActiveTab = () => {
@@ -137,10 +175,9 @@ export default function TabLayout() {
 
   // Conditionally render tabs based on mode
   return (
-    <AuthGuard>
-      <Tabs
-        tabBar={() => <CustomTabBar />}
-        screenOptions={screenOptions}>
+    <Tabs
+      tabBar={() => <CustomTabBar />}
+      screenOptions={screenOptions}>
         {/* Renter Tabs */}
         <Tabs.Screen
           name="index"
@@ -225,7 +262,6 @@ export default function TabLayout() {
         />
         <Tabs.Screen name="notifications" options={{ href: null }} />
       </Tabs>
-    </AuthGuard>
   );
 }
 
