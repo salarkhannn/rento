@@ -31,10 +31,20 @@ export default function MessagesScreen() {
     if (user) {
       loadConversations();
       loadUnreadCount();
+    } else {
+      // Clear data when user signs out
+      setConversations([]);
+      setUnreadCount(0);
+      setLoading(false);
     }
   }, [user]);
 
   const loadConversations = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await getConversations();
       setConversations(data);
@@ -48,6 +58,8 @@ export default function MessagesScreen() {
   };
 
   const loadUnreadCount = async () => {
+    if (!user) return;
+    
     try {
       const count = await getUnreadMessageCount();
       setUnreadCount(count);

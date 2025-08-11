@@ -24,12 +24,21 @@ export default function WishlistScreen() {
     const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
-      loadUnreadCount();
-      const interval = setInterval(loadUnreadCount, 30000);
-      return () => clearInterval(interval);
-    }, []);
+      // Only load notifications if user is authenticated
+      if (user) {
+        loadUnreadCount();
+        const interval = setInterval(loadUnreadCount, 30000);
+        return () => clearInterval(interval);
+      } else {
+        // Clear count when user is not authenticated
+        setUnreadCount(0);
+      }
+    }, [user]);
 
     const loadUnreadCount = async () => {
+      // Double check user is still authenticated before making the call
+      if (!user) return;
+      
       try {
         const count = await getUnreadNotificationCount();
         setUnreadCount(count);

@@ -40,15 +40,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [mode, setMode] = useState<string | null>(null);
 
     const fetchUserMode = async (userId: string) => {
-        const {data, error} = await supabase
-            .from('profiles')
-            .select('current_mode')
-            .eq('id', userId)
-            .single();
-        if (!error && data?.current_mode) {
-            setMode(data.current_mode);
-        } else {
-            setMode('renter'); // Default mode
+        // Don't fetch if no userId provided
+        if (!userId) {
+            setMode(null);
+            return;
+        }
+
+        try {
+            const {data, error} = await supabase
+                .from('profiles')
+                .select('current_mode')
+                .eq('id', userId)
+                .single();
+            
+            if (!error && data?.current_mode) {
+                setMode(data.current_mode);
+            } else {
+                setMode('renter'); // Default mode
+            }
+        } catch (error) {
+            console.error('Error fetching user mode:', error);
+            setMode('renter'); // Default mode on error
         }
     }
 
@@ -68,12 +80,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Listen for auth state changes
         const { data: { subscription }} = supabase.auth.onAuthStateChange(
-            async (_event, session) => {
+            async (event, session) => {
+                console.log('Auth state change:', event, !!session);
                 setSession(session);
                 setUser(session?.user ?? null);
+                
                 if (session?.user?.id) {
                     await fetchUserMode(session.user.id);
                 } else {
+                    // Clear all user-related state when signing out
                     setMode(null);
                 }
                 setLoading(false);

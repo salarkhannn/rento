@@ -30,10 +30,16 @@ function NotificationsIcon() {
       loadUnreadCount();
       const interval = setInterval(loadUnreadCount, 30000);
       return () => clearInterval(interval);
+    } else {
+      // Clear count when user is not authenticated
+      setUnreadCount(0);
     }
   }, [session, isInitialized]);
 
   const loadUnreadCount = async () => {
+    // Double check session is still valid before making the call
+    if (!session) return;
+    
     try {
       const count = await getUnreadNotificationCount();
       setUnreadCount(count);
