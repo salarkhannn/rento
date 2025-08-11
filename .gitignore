@@ -41,3 +41,6 @@ database_schema.db
 
 # 
 .env
+
+# apk builds
+*.apk
