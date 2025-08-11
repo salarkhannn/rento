@@ -23,28 +23,18 @@ export function ConditionalAuthGuard({
     return <>{children}</>;
   }
 
+  // If still loading or not initialized, don't show alerts yet
+  if (!isInitialized || loading) {
+    return <>{children}</>;
+  }
+
   // If auth is required but user is not authenticated
   if (requireAuth && isInitialized && !loading && !session) {
-    // Call custom handler if provided, otherwise show alert and redirect
-    if (onAuthRequired) {
-      onAuthRequired();
-    } else {
-      Alert.alert(
-        "Authentication Required",
-        message,
-        [
-          { text: "Cancel", style: "cancel" },
-          { 
-            text: "Sign In", 
-            onPress: () => router.push('/auth/auth-start')
-          }
-        ]
-      );
-    }
+    // Don't render anything - this will cause the tab navigation to handle the redirect
     return null;
   }
 
-  // If loading or authenticated, render children
+  // If authenticated, render children
   return <>{children}</>;
 }
 

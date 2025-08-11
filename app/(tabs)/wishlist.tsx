@@ -11,8 +11,10 @@ import { router } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { getUnreadNotificationCount } from '@/lib/notificationQueries';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function WishlistScreen() {
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const [wishlist, setWishlist] = useState<RentalItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,10 +62,21 @@ export default function WishlistScreen() {
   }
 
   useEffect(() => {
-    loadWishlist();
-  }, []);
+    if (user) {
+      loadWishlist();
+    } else {
+      // Clear wishlist when user signs out
+      setWishlist([]);
+      setLoading(false);
+    }
+  }, [user]);
 
   const loadWishlist = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await getWishlistItems();
       setWishlist(data);

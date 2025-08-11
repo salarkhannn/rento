@@ -18,22 +18,40 @@ export default function ProfileScreen() {
   const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    if (user) {
+      loadProfile();
+    } else {
+      // Clear profile data when user signs out
+      setProfile(null);
+      setLoading(false);
+    }
+  }, [user]);
 
   // Refresh profile when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      loadProfile();
-    }, [])
+      if (user) {
+        loadProfile();
+      }
+    }, [user])
   );
 
   const loadProfile = async () => {
+    // Don't try to load profile if user is not authenticated
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await getProfile();
       setProfile(data);
     } catch (error) {
       console.error('Error loading profile:', error);
+      // Only show error if user is still authenticated
+      if (user) {
+        console.error('Profile loading failed for authenticated user');
+      }
     } finally {
       setLoading(false);
     }

@@ -11,13 +11,20 @@ import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
 import Card from '@/ui/components/Card';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function BookingsScreen() {
+  const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadBookings = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await getMyBookings();
       setBookings(data);
@@ -31,8 +38,13 @@ export default function BookingsScreen() {
   };
 
   useEffect(() => {
-    loadBookings();
-  }, []);
+    if (user) {
+      loadBookings();
+    } else {
+      setBookings([]);
+      setLoading(false);
+    }
+  }, [user]);
 
   const onRefresh = () => {
     setRefreshing(true);

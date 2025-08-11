@@ -75,8 +75,16 @@ function CustomTabBar() {
   const router = useRouter();
   const segments = useSegments();
   
+  // When user signs out, redirect to browse page
+  useEffect(() => {
+    if (isInitialized && !loading && !session) {
+      // Redirect to browse page when user signs out
+      router.replace('/(tabs)/' as any);
+    }
+  }, [session, isInitialized, loading, router]);
+  
   // If user is not authenticated, only show the browse tab
-  if (!session) {
+  if (!session && isInitialized && !loading) {
     return (
       <NavigationBar
         mode="guest"
