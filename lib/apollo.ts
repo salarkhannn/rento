@@ -1,9 +1,9 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import { supabase } from './supabase';
+import { supabase, supabaseAnonKey, supabaseUrl } from './supabase';
 
 const httpLink = createHttpLink({
-    uri: `${process.env.EXPO_PUBLIC_SUPABASE_URL}/graphql/v1`,
+    uri: `${supabaseUrl}/graphql/v1`,
 });
 
 const authLink = setContext(async (_, { headers }) => {
@@ -13,7 +13,7 @@ const authLink = setContext(async (_, { headers }) => {
         headers: {
             ...headers,
             authorization: session?.access_token ? `Bearer ${session.access_token}` : '',
-            apikey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
+            apikey: supabaseAnonKey || '',
         }
     }
 });

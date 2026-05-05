@@ -1,5 +1,16 @@
 import 'dotenv/config';
 
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing EXPO_PUBLIC_SUPABASE_URL/EXPO_PUBLIC_SUPABASE_ANON_KEY for this build');
+}
+
+if (supabaseUrl.includes('dvgvzeldpalswkmksard')) {
+    throw new Error('Build is targeting the old Supabase project. Update EXPO_PUBLIC_SUPABASE_URL.');
+}
+
 export default ( {config} ) => ({
     ...config,
     expo: {
@@ -44,8 +55,8 @@ export default ( {config} ) => ({
             typedRoutes: true
         },
         extra: {
-            supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-            supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+            supabaseUrl,
+            supabaseAnonKey,
             eas: {
                 projectId: "de5d1168-3873-4437-aa25-f9587bdd1c2d",
             },
