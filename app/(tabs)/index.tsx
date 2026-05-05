@@ -202,5 +202,6 @@ const styles = StyleSheet.create({
   listContentContainer: {
     paddingHorizontal: 20,
     gap: 10,
+    paddingBottom: 110,
   },
 });

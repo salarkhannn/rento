@@ -112,44 +112,66 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   };
 
   return (
-    <GlassView style={styles.container} accessible={true} accessibilityRole="tablist" {...glassProps}>
-      {currentConfig.map((item: TabItem, index: number) => renderTabItem(item, index))}
-    </GlassView>
+    <View style={styles.floatingContainer}>
+      <GlassView style={styles.container} accessible={true} accessibilityRole="tablist" {...glassProps}>
+        {currentConfig.map((item: TabItem, index: number) => renderTabItem(item, index))}
+      </GlassView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  floatingContainer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
   container: {
     width: '100%',
-    height: 92,
+    height: 70,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingTop: 15,
-    paddingHorizontal: 11,
-    backgroundColor: Platform.OS === 'ios' ? 'transparent' : Colors.background.primary,
-    borderTopWidth: 1,
-    borderTopColor: Colors.background.tertiary,
-    paddingBottom: 50,
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    backgroundColor: Platform.OS === 'ios' ? 'rgba(255, 255, 255, 0.8)' : Colors.background.primary,
+    borderRadius: 35,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 10,
+      },
+    }),
+    overflow: 'hidden',
   },
   tabItem: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
   iconContainer: {
     width: 24,
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: '600',
     fontFamily: 'System',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 12,
   },
 });
 
