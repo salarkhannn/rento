@@ -21,7 +21,8 @@ export default ( {config} ) => ({
             infoPlist: {
                 NSUserTrackingUsageDescription: "This identifier will be used to deliver personalized ads to you.",
                 UIBackgroundModes: ["remote-notification"]
-            }
+            },
+            bundleIdentifier: "com.salarkhannn.rento"
         },
         android: {
             adaptiveIcon: {

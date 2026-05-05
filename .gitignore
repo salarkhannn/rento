@@ -44,3 +44,7 @@ database_schema.db
 
 # apk builds
 *.apk
+
+# Native directories
+android/
+ios/
