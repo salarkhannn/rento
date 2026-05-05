@@ -21,6 +21,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+export type PaymentStatus = 'pending' | 'escrow' | 'released' | 'refunded';
 export type PickupMethod = 'owner_delivery' | 'renter_pickup' | 'courier_supported';
 export type UserMode = 'renter' | 'lender';
 export type NotificationType =
@@ -30,6 +31,8 @@ export type NotificationType =
     | 'booking_cancelled'
     | 'new_message'
     | 'listing_deleted';
+
+export type VerificationStatus = 'none' | 'pending' | 'verified' | 'rejected';
 
 export interface Profile {
     id: string;
@@ -44,6 +47,12 @@ export interface Profile {
     last_name?: string;
     dob?: string;
     current_mode?: UserMode;
+    cnic_url?: string;
+    verification_status?: VerificationStatus;
+    is_verified?: boolean;
+    verification_message?: string;
+    failed_login_attempts?: number;
+    locked_until?: string;
 }
 
 export interface Wishlist {
@@ -75,6 +84,8 @@ export interface RentalItem {
     category: string;
     owner_id: string;
     is_available?: boolean;
+    auto_accept?: boolean;
+    late_fee_per_day?: number;
     created_at: string;
     updated_at: string;
     latitude?: number;
@@ -94,6 +105,10 @@ export interface Booking {
     end_date: string;
     status: BookingStatus;
     total_price: number;
+    payment_status?: PaymentStatus;
+    check_in_photos?: string[];
+    check_out_photos?: string[];
+    late_fee?: number;
     created_at: string;
     updated_at: string;
     message?: string;
@@ -119,6 +134,16 @@ export interface Notification {
     read?: boolean;
     created_at: string;
     updated_at: string;
+}
+
+export interface Review {
+    id: string;
+    item_id: string;
+    reviewer_id: string;
+    rating: number;
+    comment: string;
+    created_at: string;
+    reviewer?: Profile;
 }
 
 export interface Wishlist {

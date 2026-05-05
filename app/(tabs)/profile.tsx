@@ -10,6 +10,7 @@ import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
 import { ConditionalAuthGuard } from '@/components/ConditionalAuthGuard';
+import VerificationBadge from '@/components/VerificationBadge';
 
 export default function ProfileScreen() {
   const { user, signOut, mode, switchMode, loading: authLoading } = useAuth();
@@ -161,9 +162,30 @@ export default function ProfileScreen() {
           )}
         </View>
         
-        <Text style={styles.userName}>
-          {profile?.name || 'John Doe'}
-        </Text>
+        <View style={styles.userNameContainer}>
+          <Text style={styles.userName}>
+            {profile?.name || 'John Doe'}
+          </Text>
+          {profile?.is_verified && <VerificationBadge size={20} />}
+        </View>
+
+        {profile?.verification_status === 'pending' && (
+          <View style={styles.statusBadge}>
+            <Ionicons name="time-outline" size={14} color="#f5a623" />
+            <Text style={styles.statusText}>Verification Pending</Text>
+          </View>
+        )}
+
+        {profile?.verification_status === 'rejected' && (
+          <TouchableOpacity 
+            style={[styles.statusBadge, styles.rejectedBadge]}
+            onPress={() => router.push('/edit-profile')}
+          >
+            <Ionicons name="alert-circle-outline" size={14} color="#ff3b30" />
+            <Text style={[styles.statusText, styles.rejectedText]}>Verification Rejected (Tap to fix)</Text>
+          </TouchableOpacity>
+        )}
+
         <Text style={styles.userEmail}>
           {user?.email || 'johndoe@example.com'}
         </Text>
@@ -211,6 +233,15 @@ export default function ProfileScreen() {
           </View>
           <Text style={styles.quickActionLabel}>Notifications</Text>
         </TouchableOpacity>
+
+        {user?.email?.includes('admin') && (
+          <TouchableOpacity style={styles.quickActionItem} onPress={() => router.push('/admin/dashboard')}>
+            <View style={[styles.quickActionIcon, { backgroundColor: '#fff0f0' }]}>
+              <Ionicons name="shield-checkmark-outline" size={24} color="#ff3b30" />
+            </View>
+            <Text style={[styles.quickActionLabel, { color: '#ff3b30' }]}>Admin</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Mode Switch */}
@@ -298,7 +329,31 @@ const styles = StyleSheet.create({
   userName: {
     ...typography.title2Emphasized,
     color: Colors.text.primary,
+  },
+  userNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 4,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff9e6',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  statusText: {
+    ...typography.caption1Medium,
+    color: '#f5a623',
+    marginLeft: 4,
+  },
+  rejectedBadge: {
+    backgroundColor: '#ffe5e5',
+  },
+  rejectedText: {
+    color: '#ff3b30',
   },
   userEmail: {
     ...typography.bodyRegular,

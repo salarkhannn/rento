@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image, Switch } from 'react-native';
 import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
@@ -39,6 +39,8 @@ export default function CreateItemScreen() {
     availableTo: string | null;
   }>({ availableFrom: null, availableTo: null });
   const [pickupMethod, setPickupMethod] = useState<PickupMethod>('renter_pickup');
+  const [autoAccept, setAutoAccept] = useState(false);
+  const [lateFee, setLateFee] = useState('10'); // Default $10 late fee
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -153,6 +155,8 @@ export default function CreateItemScreen() {
         available_from: availability.availableFrom || undefined,
         available_to: availability.availableTo || undefined,
         pickup_method: pickupMethod,
+        auto_accept: autoAccept,
+        late_fee_per_day: parseFloat(lateFee) || 0,
       };
 
       console.log('Creating rental item with data:', itemData);
@@ -253,6 +257,31 @@ export default function CreateItemScreen() {
             onMethodChange={setPickupMethod}
             initialMethod={pickupMethod}
           />
+
+          <View style={styles.settingsSection}>
+            <View style={styles.switchRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.label}>Auto-accept Bookings</Text>
+                <Text style={styles.helperText}>Automatically approve requests upon payment</Text>
+              </View>
+              <Switch
+                value={autoAccept}
+                onValueChange={setAutoAccept}
+                trackColor={{ false: '#767577', true: '#2f95dc' }}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Late Fee per day (USD)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="10"
+                value={lateFee}
+                onChangeText={setLateFee}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
 
           <View style={styles.imageSection}>
             <Text style={styles.label}>Photos</Text>
@@ -371,6 +400,28 @@ const styles = StyleSheet.create({
     imagePlaceholderText: {
         fontSize: 16,
         color: '#666',
+    },
+    settingsSection: {
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 8,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    switchRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    helperText: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 2,
+    },
+    inputGroup: {
+        marginTop: 8,
     },
     submitButton: {
         backgroundColor: '#4CAF50',

@@ -92,6 +92,20 @@ export default function ConversationScreen() {
     if (!newMessage.trim() || !id || sending) return;
 
     const messageText = newMessage.trim();
+
+    // Safety check for contact info
+    const phoneRegex = /(\+?\d{1,4}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/g;
+    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+
+    if (phoneRegex.test(messageText) || emailRegex.test(messageText)) {
+      Alert.alert(
+        'Safety Warning',
+        'Sharing external contact information is not allowed for your safety. Please keep all communications within Rento.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     setNewMessage('');
     setSending(true);
 

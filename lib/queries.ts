@@ -329,6 +329,106 @@ export const uploadImage = async (
     return data.publicUrl;
 };
 
+// Admin Queries
+export const getPendingVerifications = async (): Promise<Profile[]> => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('verification_status', 'pending')
+        .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+};
+
+export const updateVerificationStatus = async (
+    userId: string, 
+    status: VerificationStatus, 
+    message?: string
+): Promise<void> => {
+    const isVerified = status === 'verified';
+    const { error } = await supabase
+        .from('profiles')
+        .update({ 
+            verification_status: status,
+            is_verified: isVerified,
+            verification_message: message,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+    if (error) throw error;
+};
+
+export const getAdminStats = async () => {
+    // Total Users
+    const { count: userCount, error: userError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+    // Total Bookings
+    const { count: bookingCount, error: bookingError } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true });
+
+    // Total Revenue (Completed & Confirmed)
+    const { data: revenueData, error: revenueError } = await supabase
+        .from('bookings')
+        .select('total_price')
+        .in('status', ['CONFIRMED', 'COMPLETED']);
+
+    const totalRevenue = revenueData?.reduce((sum, b) => sum + (b.total_price || 0), 0) || 0;
+
+    if (userError || bookingError || revenueError) throw new Error('Failed to fetch admin stats');
+
+    return {
+        userCount: userCount || 0,
+        bookingCount: bookingCount || 0,
+        totalRevenue
+    };
+};
+
+export const getRecentBookings = async (limit: number = 10): Promise<Booking[]> => {
+    const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+            *,
+            item:rental_items!item_id(*),
+            renter:profiles!renter_id(*)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+    if (error) throw error;
+    return data || [];
+};
+
+// Review Queries
+export const createReview = async (review: Omit<Review, 'id' | 'created_at' | 'reviewer'>): Promise<Review> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .insert(review)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+};
+
+export const getItemReviews = async (itemId: string): Promise<Review[]> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+            *,
+            reviewer:profiles!reviewer_id(*)
+        `)
+        .eq('item_id', itemId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+};
+
 // Message queries
 export const getConversations = async (): Promise<Message[]> => {
     const { data: { user } } = await supabase.auth.getUser();
