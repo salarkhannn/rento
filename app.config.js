@@ -30,7 +30,8 @@ export default ( {config} ) => ({
             },
             useNextNotificationsApi: true,
             softwareKeyboardLayoutMode: "pan",
-            permissions: ["NOTIFICATIONS", "INTERNET"]
+            permissions: ["NOTIFICATIONS", "INTERNET"],
+            package: "com.salarkhannn.rento"
         },
         web: { 
             bundler: "metro",
