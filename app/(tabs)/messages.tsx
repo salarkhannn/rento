@@ -150,9 +150,6 @@ export default function MessagesScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Messages</Text>
-        </View>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading messages...</Text>
         </View>
@@ -217,19 +214,7 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.secondary,
-  },
-  header: {
     backgroundColor: Colors.background.primary,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-  },
-  headerTitle: {
-    ...typography.title1Medium,
-    color: Colors.text.primary,
   },
   filterContainer: {
     flexDirection: 'row',

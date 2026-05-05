@@ -93,13 +93,13 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.secondary,
+    backgroundColor: Colors.background.primary,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background.secondary,
+    backgroundColor: Colors.background.primary,
   },
   loadingText: {
     ...typography.bodyRegular,

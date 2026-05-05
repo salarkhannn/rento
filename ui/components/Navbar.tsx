@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { GlassView } from 'expo-glass-effect';
 import { 
   Compass, 
   Heart, 
@@ -69,11 +70,13 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   const currentConfig = navConfig[mode || 'renter'];
 
   // Safety check to prevent map error
+  const glassProps = Platform.OS === 'ios'
+    ? { glassEffectStyle: 'regular' as const, tintColor: Colors.background.primary }
+    : {};
+
   if (!currentConfig) {
     return (
-      <View style={styles.container} accessible={true} accessibilityRole="tablist">
-        {/* Render empty navigation while mode is loading */}
-      </View>
+      <GlassView style={styles.container} accessible={true} accessibilityRole="tablist" {...glassProps} />
     );
   }
 
@@ -109,9 +112,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   };
 
   return (
-    <View style={styles.container} accessible={true} accessibilityRole="tablist">
+    <GlassView style={styles.container} accessible={true} accessibilityRole="tablist" {...glassProps}>
       {currentConfig.map((item: TabItem, index: number) => renderTabItem(item, index))}
-    </View>
+    </GlassView>
   );
 };
 
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingTop: 15,
     paddingHorizontal: 11,
-    backgroundColor: Colors.background.primary,
+    backgroundColor: Platform.OS === 'ios' ? 'transparent' : Colors.background.primary,
     borderTopWidth: 1,
     borderTopColor: Colors.background.tertiary,
     paddingBottom: 50,

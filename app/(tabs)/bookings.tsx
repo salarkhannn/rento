@@ -180,7 +180,7 @@ function getStatusColor(status: string) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.secondary,
+    backgroundColor: Colors.background.primary,
   },
   headerContainer: {
     backgroundColor: Colors.background.primary,
@@ -196,6 +196,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.background.primary,
   },
   loadingText: {
     ...typography.bodyRegular,
