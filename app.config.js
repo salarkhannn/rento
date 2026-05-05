@@ -30,7 +30,7 @@ export default ( {config} ) => ({
             },
             useNextNotificationsApi: true,
             softwareKeyboardLayoutMode: "pan",
-            permissions: ["NOTIFICATIONS"]
+            permissions: ["NOTIFICATIONS", "INTERNET"]
         },
         web: { 
             bundler: "metro",
@@ -45,7 +45,7 @@ export default ( {config} ) => ({
             supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
             supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
             eas: {
-                projectId: "b0c689bf-14e4-489b-9105-8dfd39aa576d",
+                projectId: "de5d1168-3873-4437-aa25-f9587bdd1c2d",
             },
         },
     }

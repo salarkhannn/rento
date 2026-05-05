@@ -23,7 +23,9 @@ export default function AuthStartScreen() {
     }
     setLoading(true);
     try {
-      // Temporarily commented out to bypass login/signup
+      // DEBUG: Remove this after testing
+      Alert.alert('Debug', `Hitting: ${supabase.supabaseUrl}`);
+      
       const { data, error } = await supabase
         .rpc('check_user_exists', { input_email: email.toLowerCase().trim() });
 

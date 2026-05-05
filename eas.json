@@ -6,7 +6,12 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://mejvfpkwhitlomkhjslf.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lanZmcGt3aGl0bG9ta2hqc2xmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTEzNDUsImV4cCI6MjA5MzQ4NzM0NX0.faKtWARXeaY4FOD3NcVcHG_iPJ2wSwInxnqBwnZIKwY",
+        "PROJECT_ID": "mejvfpkwhitlomkhjslf"
+      }
     },
     "preview": {
       "distribution": "internal"
@@ -14,20 +19,26 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://dvgvzeldpalswkmksard.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Z3Z6ZWxkcGFsc3drbWtzYXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwODIyMzYsImV4cCI6MjA2NTY1ODIzNn0.0Omp5E0ZpUAyrHC_VwWaWD795bqccBHF1Reb9v_7VNI",
-        "PROJECT_ID": "dvgvzeldpalswkmksard"
+        "EXPO_PUBLIC_SUPABASE_URL": "https://mejvfpkwhitlomkhjslf.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lanZmcGt3aGl0bG9ta2hqc2xmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTEzNDUsImV4cCI6MjA5MzQ4NzM0NX0.faKtWARXeaY4FOD3NcVcHG_iPJ2wSwInxnqBwnZIKwY",
+        "PROJECT_ID": "mejvfpkwhitlomkhjslf"
       }
     },
     "production-apk": {
       "android": {
         "buildType": "apk"
       },
+      "cache": {
+        "key": "v1"
+      },
       "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://dvgvzeldpalswkmksard.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Z3Z6ZWxkcGFsc3drbWtzYXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwODIyMzYsImV4cCI6MjA2NTY1ODIzNn0.0Omp5E0ZpUAyrHC_VwWaWD795bqccBHF1Reb9v_7VNI",
-        "PROJECT_ID": "dvgvzeldpalswkmksard"
+        "EXPO_PUBLIC_SUPABASE_URL": "https://mejvfpkwhitlomkhjslf.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lanZmcGt3aGl0bG9ta2hqc2xmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTEzNDUsImV4cCI6MjA5MzQ4NzM0NX0.faKtWARXeaY4FOD3NcVcHG_iPJ2wSwInxnqBwnZIKwY",
+        "PROJECT_ID": "mejvfpkwhitlomkhjslf"
       }
+    },
+    "test": {
+      "extends": "production"
     }
   },
   "submit": {
