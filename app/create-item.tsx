@@ -42,6 +42,18 @@ export default function CreateItemScreen() {
   const [autoAccept, setAutoAccept] = useState(false);
   const [lateFee, setLateFee] = useState('10'); // Default $10 late fee
 
+  const getSuggestedPrice = (cat: string) => {
+    const suggestions: Record<string, string> = {
+      'Electronics': '30-100',
+      'Tools': '15-50',
+      'Cameras': '40-120',
+      'Sports': '10-40',
+      'Party': '20-80',
+      'Outdoors': '15-60',
+    };
+    return suggestions[cat] || '10-50';
+  };
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -216,6 +228,11 @@ export default function CreateItemScreen() {
             onChangeText={setPrice}
             keyboardType="numeric"
           />
+          {category ? (
+            <Text style={styles.suggestionText}>
+              💡 Suggested price for {category}: ${getSuggestedPrice(category)}/day
+            </Text>
+          ) : null}
           
           <TextInput
             style={styles.input}
@@ -419,6 +436,13 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
         marginTop: 2,
+    },
+    suggestionText: {
+        fontSize: 13,
+        color: '#2f95dc',
+        marginTop: -10,
+        marginBottom: 15,
+        fontStyle: 'italic',
     },
     inputGroup: {
         marginTop: 8,

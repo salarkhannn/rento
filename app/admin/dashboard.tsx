@@ -95,6 +95,20 @@ export default function AdminDashboardScreen() {
           </View>
           <Ionicons name="chevron-forward" size={20} color={Colors.text.tertiary} />
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.toolCard, { marginTop: 12 }]}
+          onPress={() => router.push('/admin/disputes')}
+        >
+          <View style={[styles.toolIcon, { backgroundColor: '#ff3b30' }]}>
+            <Ionicons name="warning-outline" size={24} color="#fff" />
+          </View>
+          <View style={styles.toolInfo}>
+            <Text style={styles.toolTitle}>Dispute Resolution</Text>
+            <Text style={styles.toolSubtitle}>Manage reported issues and appeals</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.text.tertiary} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>

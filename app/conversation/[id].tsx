@@ -66,8 +66,12 @@ export default function ConversationScreen() {
       if (!name && data.length > 0) {
         const firstMessage = data[0];
         const otherUser = firstMessage.sender_id === user?.id ? firstMessage.receiver : firstMessage.sender;
-        if (otherUser?.name) {
-          setOtherUserName(otherUser.name);
+        const resolvedName = otherUser?.name || 
+                            (otherUser?.first_name ? `${otherUser.first_name} ${otherUser.last_name || ''}` : null) || 
+                            otherUser?.email?.split('@')[0];
+                            
+        if (resolvedName) {
+          setOtherUserName(resolvedName);
         }
       }
     } catch (error) {

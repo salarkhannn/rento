@@ -94,9 +94,20 @@ export default function MessagesScreen() {
 
   const openConversation = (message: Message) => {
     const otherUser = getOtherUser(message);
+    console.log('Opening conversation with message:', message.id);
+    console.log('Other user object:', JSON.stringify(otherUser, null, 2));
+    
     if (otherUser) {
-      const userName = otherUser.name || 'Unknown User';
+      const userName = otherUser.name || 
+                      (otherUser.first_name ? `${otherUser.first_name} ${otherUser.last_name || ''}` : null) || 
+                      otherUser.email?.split('@')[0] || 
+                      'User';
+      
+      console.log(`Navigating to /conversation/${otherUser.id} with name ${userName}`);
       router.push(`/conversation/${otherUser.id}?name=${encodeURIComponent(userName)}`);
+    } else {
+      console.error('Cannot open conversation: otherUser is null');
+      Alert.alert('Error', 'Could not identify the other user in this conversation.');
     }
   };
 
@@ -131,7 +142,10 @@ export default function MessagesScreen() {
         <View style={styles.messageContent}>
           <View style={styles.messageHeader}>
             <Text style={styles.userName}>
-              {otherUser?.name || 'User name'}
+              {otherUser?.name || 
+               (otherUser?.first_name ? `${otherUser.first_name} ${otherUser.last_name || ''}` : null) || 
+               otherUser?.email?.split('@')[0] || 
+               'User'}
             </Text>
             <Text style={styles.timestamp}>
               {formatTime(item.created_at)}

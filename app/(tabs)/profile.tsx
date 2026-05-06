@@ -234,7 +234,7 @@ export default function ProfileScreen() {
           <Text style={styles.quickActionLabel}>Notifications</Text>
         </TouchableOpacity>
 
-        {user?.email?.includes('admin') && (
+        {profile?.is_admin && (
           <TouchableOpacity style={styles.quickActionItem} onPress={() => router.push('/admin/dashboard')}>
             <View style={[styles.quickActionIcon, { backgroundColor: '#fff0f0' }]}>
               <Ionicons name="shield-checkmark-outline" size={24} color="#ff3b30" />

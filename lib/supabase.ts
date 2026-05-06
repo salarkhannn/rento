@@ -53,6 +53,7 @@ export interface Profile {
     verification_message?: string;
     failed_login_attempts?: number;
     locked_until?: string;
+    is_admin?: boolean;
 }
 
 export interface Wishlist {

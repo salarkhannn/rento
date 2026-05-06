@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import { getMyBookings, updateBookingStatus } from '@/lib/queries';
@@ -95,39 +97,120 @@ export default function BookingsScreen() {
       }
   };
 
-  const renderBooking = ({ item: booking }: { item: Booking }) => (
-    <View style={styles.bookingCard}>
-      <View style={styles.bookingHeader}>
-        <Text style={styles.itemTitle}>{booking.item?.title || 'Unknown Item'}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
-          <Text style={styles.statusText}>{booking.status}</Text>
+  const calculateLateFee = (booking: Booking) => {
+    if (booking.status === 'COMPLETED' || booking.status === 'CANCELLED') return 0;
+    
+    const endDate = new Date(booking.end_date);
+    const now = new Date();
+    
+    if (now > endDate) {
+      const diffTime = Math.abs(now.getTime() - endDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const lateFeePerDay = booking.item?.late_fee_per_day || 10;
+      return diffDays * lateFeePerDay;
+    }
+    return 0;
+  };
+
+  const renderBooking = ({ item: booking }: { item: Booking }) => {
+    const lateFee = calculateLateFee(booking);
+    const isPastStart = new Date() >= new Date(booking.start_date);
+    const isPastEnd = new Date() >= new Date(booking.end_date);
+
+    return (
+      <View style={styles.bookingCard}>
+        <View style={styles.bookingHeader}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.itemTitle}>{booking.item?.title || 'Unknown Item'}</Text>
+            {lateFee > 0 && (
+              <View style={styles.lateFeeBadge}>
+                <Text style={styles.lateFeeText}>Late Fee: ${lateFee}</Text>
+              </View>
+            )}
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
+            <Text style={styles.statusText}>{booking.status}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.dates}>
+          📅 {new Date(booking.start_date).toLocaleDateString()} → {new Date(booking.end_date).toLocaleDateString()}
+        </Text>
+
+        <Text style={styles.location}>
+          📍 {booking.item?.location || 'Unknown location'}
+        </Text>
+
+        <View style={styles.bookingFooter}>
+          <Text style={styles.price}>💰 ${booking.total_price + lateFee}</Text>
+          
+          <View style={styles.actionRow}>
+            {booking.status === 'PENDING' && (
+              <Button
+                title="Cancel"
+                onPress={() => handleCancelBooking(booking)}
+                variant="filled"
+                size="small"
+                color="bw"
+                style={styles.cancelButton}
+              />
+            )}
+
+            {booking.status === 'APPROVED' && (
+              <>
+                {!booking.check_in_photos?.length ? (
+                  <Button
+                    title="Check-in"
+                    onPress={() => router.push({
+                      pathname: '/booking/[id]/verify',
+                      params: { id: booking.id, type: 'check_in' }
+                    })}
+                    variant="outline"
+                    size="small"
+                    color="colored"
+                  />
+                ) : !booking.check_out_photos?.length && isPastEnd && (
+                  <Button
+                    title="Check-out"
+                    onPress={() => router.push({
+                      pathname: '/booking/[id]/verify',
+                      params: { id: booking.id, type: 'check_out' }
+                    })}
+                    variant="outline"
+                    size="small"
+                    color="colored"
+                  />
+                )}
+                
+                <TouchableOpacity 
+                  style={styles.reportButton}
+                  onPress={() => Alert.alert('Report Issue', 'This will open a dispute with the owner. Proceed?', [
+                    { text: 'Cancel' },
+                    { text: 'Report', onPress: () => Alert.alert('Submitted', 'Dispute ticket created.') }
+                  ])}
+                >
+                  <Ionicons name="warning-outline" size={20} color={Colors.colors.red} />
+                </TouchableOpacity>
+              </>
+            )}
+
+            {booking.status === 'COMPLETED' && (
+              <Button
+                title="Leave Review"
+                onPress={() => router.push({
+                  pathname: '/booking/[id]/review',
+                  params: { id: booking.id }
+                })}
+                variant="filled"
+                size="small"
+                color="colored"
+              />
+            )}
+          </View>
         </View>
       </View>
-
-      <Text style={styles.dates}>
-        📅 {booking.start_date} → {booking.end_date}
-      </Text>
-
-      <Text style={styles.location}>
-        📍 {booking.item?.location || 'Unknown location'}
-      </Text>
-
-      <View style={styles.bookingFooter}>
-        <Text style={styles.price}>💰 ${booking.total_price}</Text>
-        
-        {booking.status === 'PENDING' && (
-          <Button
-            title="Cancel"
-            onPress={() => handleCancelBooking(booking)}
-            variant="filled"
-            size="small"
-            color="bw"
-            style={styles.cancelButton}
-          />
-        )}
-      </View>
-    </View>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -168,7 +251,7 @@ export default function BookingsScreen() {
 
 function getStatusColor(status: string) {
   switch (status) {
-    case 'CONFIRMED': return Colors.colors.green;
+    case 'APPROVED': return Colors.colors.green;
     case 'PENDING': return Colors.colors.orange;
     case 'CANCELLED': return Colors.colors.red;
     case 'COMPLETED': return Colors.colors.blue;
@@ -257,6 +340,17 @@ const styles = StyleSheet.create({
   price: {
     ...typography.calloutEmphasized,
     color: Colors.brand.primary,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  reportButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff0f0',
+    marginLeft: 8,
   },
   cancelButton: {
     backgroundColor: Colors.colors.red,

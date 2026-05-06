@@ -1,7 +1,7 @@
 import { Text, View } from "@/components/Themed";
 import { useAuth } from "@/lib/AuthContext";
-import { createBooking, getRentalItem, getItemReviews } from "@/lib/queries";
-import { RentalItem, Review } from "@/lib/supabase";
+import { createBooking, getRentalItem, getItemReviews, getItemBookings } from "@/lib/queries";
+import { RentalItem, Review, Booking } from "@/lib/supabase";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
@@ -21,6 +21,7 @@ export default function ItemDetailScreen() {
     const { requireAuth } = useAuthAction();
     const [item, setItem] = useState<RentalItem | null>(null);
     const [reviews, setReviews] = useState<Review[]>([]);
+    const [bookedDates, setBookedDates] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [startDate, setStartDate] = useState('');
@@ -39,12 +40,14 @@ export default function ItemDetailScreen() {
         if (!id) return;
 
         try {
-            const [itemData, reviewsData] = await Promise.all([
+            const [itemData, reviewsData, bookingsData] = await Promise.all([
                 getRentalItem(id),
-                getItemReviews(id)
+                getItemReviews(id),
+                getItemBookings(id)
             ]);
             setItem(itemData);
             setReviews(reviewsData);
+            setBookedDates(bookingsData.filter(b => b.status === 'CONFIRMED' || b.status === 'PENDING'));
         } catch (error) {
             console.error("Error loading item: ", error);
             Alert.alert('Error', 'Failed to load item details');
@@ -93,6 +96,20 @@ export default function ItemDetailScreen() {
             }
 
             const charges = calculateItemizedCharges();
+
+            // Overlap check
+            const newStart = new Date(startDate);
+            const newEnd = new Date(endDate);
+            const isOverlapping = bookedDates.some(booking => {
+                const bookedStart = new Date(booking.start_date);
+                const bookedEnd = new Date(booking.end_date);
+                return (newStart <= bookedEnd && newEnd >= bookedStart);
+            });
+
+            if (isOverlapping) {
+                Alert.alert('Unavailable', 'This item is already booked for the selected dates. Please choose different dates.');
+                return;
+            }
 
             Alert.alert(
                 'Confirm Booking',
@@ -200,6 +217,17 @@ export default function ItemDetailScreen() {
                 {item.is_available && user?.id !== item.owner_id && mode === 'renter' && (
                     <View style={styles.bookingSection}>
                         <Text style={styles.sectionTitle}>Book this item</Text>
+
+                        {bookedDates.length > 0 && (
+                            <View style={styles.unavailableDatesContainer}>
+                                <Text style={styles.unavailableDatesTitle}>Already Booked:</Text>
+                                {bookedDates.map(b => (
+                                    <Text key={b.id} style={styles.unavailableDateRange}>
+                                        • {new Date(b.start_date).toLocaleDateString()} to {new Date(b.end_date).toLocaleDateString()}
+                                    </Text>
+                                ))}
+                            </View>
+                        )}
 
                         <View style={styles.dateInputs}>
                             <View style={styles.dateInput}>
@@ -516,6 +544,24 @@ const styles = StyleSheet.create({
     color: '#999',
     fontStyle: 'italic',
     marginTop: 8,
+  },
+  unavailableDatesContainer: {
+    backgroundColor: '#fff3e0',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#ffe0b2',
+  },
+  unavailableDatesTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#e65100',
+    marginBottom: 4,
+  },
+  unavailableDateRange: {
+    fontSize: 13,
+    color: '#ef6c00',
   },
   button: {
     backgroundColor: '#2f95dc',
