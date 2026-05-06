@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Profile, RentalItem, Booking, Message, Category, Wishlist, Notification as DbNotification } from './supabase';
+import { Profile, RentalItem, Booking, Message, Category, Wishlist, Notification as DbNotification, Review } from './supabase';
 import { Notification } from './notificationQueries';
 
 // Rental Item Queries
@@ -684,4 +684,57 @@ export const getNotifications = async (): Promise<Notification[]> => {
 
     if (error) throw error;
     return data || [];
+};
+
+// Review queries
+export const createReview = async (reviewData: {
+    reviewer_id: string;
+    reviewee_id: string;
+    booking_id: string;
+    rating: number;
+    comment?: string;
+}): Promise<Review> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .insert(reviewData)
+        .select(`
+            *,
+            reviewer:profiles!reviewer_id(*),
+            reviewee:profiles!reviewee_id(*),
+            booking:bookings(*)
+        `)
+        .single();
+
+    if (error) throw error;
+    return data;
+};
+
+export const getReviewsForUser = async (userId: string): Promise<Review[]> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+            *,
+            reviewer:profiles!reviewer_id(*),
+            reviewee:profiles!reviewee_id(*),
+            booking:bookings(*)
+        `)
+        .eq('reviewee_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+};
+
+export const getAverageRating = async (userId: string): Promise<number> => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('reviewee_id', userId);
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) return 0;
+
+    const totalRating = data.reduce((sum, review) => sum + review.rating, 0);
+    return totalRating / data.length;
 };

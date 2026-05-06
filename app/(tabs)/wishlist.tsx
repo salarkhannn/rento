@@ -48,7 +48,7 @@ export default function WishlistScreen() {
     };
 
     return (
-      <Pressable onPress={() => router.push('/(tabs)/notifications')}>
+      <Pressable testID="notifications-button" onPress={() => router.push('/(tabs)/notifications')}>
         {({ pressed }) => (
           <View style={styles.notificationIconContainer}>
             <FontAwesome
@@ -126,6 +126,7 @@ export default function WishlistScreen() {
           <NotificationsIcon />
         </View>
         <FlatList
+          testID="wishlist-flatlist"
           data={wishlist}
           keyExtractor={item => item.id}
           renderItem={({ item }) => <WishlistItemCard item={item} onRemove={handleRemove} />}

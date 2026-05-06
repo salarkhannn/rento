@@ -156,7 +156,7 @@ export default function MessagesScreen() {
           </Text>
         </View>
         
-        {isUnread && <View style={styles.unreadDot} />}
+        {isUnread && <View style={styles.unreadDot} testID="unread-dot" />}
       </TouchableOpacity>
     );
   };
@@ -218,6 +218,7 @@ export default function MessagesScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          testID="flat-list"
         />
       )}
     </View>

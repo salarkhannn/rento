@@ -206,7 +206,7 @@ export default function ConversationScreen() {
       />
       
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} testID="back-button">
           <FontAwesome name="arrow-left" size={20} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{otherUserName}</Text>
@@ -259,6 +259,7 @@ export default function ConversationScreen() {
             style={[styles.sendButton, (!newMessage.trim() || sending) && styles.sendButtonDisabled]}
             onPress={handleSendMessage}
             disabled={!newMessage.trim() || sending}
+            testID="send-button"
           >
             <FontAwesome 
               name={sending ? "spinner" : "send"} 
