@@ -145,14 +145,13 @@ export default function DashboardScreen() {
 
   return (
     <ModeGuard requiredMode="lender">
-      <ScrollView 
+      <ScrollView
         style={styles.container}
+        contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.welcomeText}>Welcome back!</Text>
-          <Text style={styles.headerTitle}>Dashboard Overview</Text>
         </View>
 
         {/* Stats Grid */}
@@ -340,12 +339,16 @@ function getStatusColor(status: string) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.secondary,
+    backgroundColor: Colors.background.primary,
+  },
+  content: {
+    paddingBottom: 120,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.background.primary,
   },
   loadingText: {
     ...typography.bodyRegular,
@@ -355,17 +358,12 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: Colors.background.primary,
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
+    paddingTop: 8,
+    paddingBottom: 16,
   },
   welcomeText: {
     ...typography.subheadlineRegular,
     color: Colors.text.secondary,
-    marginBottom: 4,
-  },
-  headerTitle: {
-    ...typography.title1Medium,
-    color: Colors.text.primary,
   },
   statsContainer: {
     paddingHorizontal: 20,

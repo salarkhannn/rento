@@ -12,6 +12,7 @@ import {
 import { useAuth } from '@/lib/AuthContext';
 import { getLenderBookings, updateBookingStatus } from '@/lib/queries';
 import { Booking } from '@/lib/supabase';
+import { PaymentStatusBadge } from '@/components/PaymentStatusBadge';
 
 export default function LenderBookingsScreen() {
   const { user } = useAuth();
@@ -38,7 +39,10 @@ export default function LenderBookingsScreen() {
     }
   };
 
-  const handleAction = async (bookingId: string, action: 'CONFIRMED' | 'CANCELLED') => {
+  const handleAction = async (
+    bookingId: string,
+    action: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED',
+  ) => {
     setActionLoading(bookingId);
     try {
       await updateBookingStatus(bookingId, action);
@@ -60,6 +64,9 @@ export default function LenderBookingsScreen() {
       <Text>
         Status: <Text style={{ fontWeight: 'bold' }}>{item.status}</Text>
       </Text>
+      <View style={styles.paymentRow}>
+        <PaymentStatusBadge status={item.payment_status} />
+      </View>
       {item.status === 'PENDING' && (
         <View style={styles.actions}>
           <TouchableOpacity
@@ -82,6 +89,19 @@ export default function LenderBookingsScreen() {
           </TouchableOpacity>
         </View>
       )}
+      {item.status === 'CONFIRMED' && (
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#007AFF' }]}
+            onPress={() => handleAction(item.id, 'COMPLETED')}
+            disabled={actionLoading === item.id}
+          >
+            <Text style={styles.actionButtonText}>
+              {actionLoading === item.id ? 'Completing...' : 'Mark Completed & Release Funds'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 
@@ -95,11 +115,11 @@ export default function LenderBookingsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Lender Bookings</Text>
       <FlatList
         data={bookings}
         keyExtractor={item => item.id}
         renderItem={renderBooking}
+        contentContainerStyle={{ paddingBottom: 120 }}
         ListEmptyComponent={
           <View style={styles.center}>
             <Text>No bookings for your items yet.</Text>
@@ -120,6 +140,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   itemTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
+  paymentRow: { marginTop: 8 },
   actions: { flexDirection: 'row', marginTop: 12 },
   actionButton: {
     paddingVertical: 8,

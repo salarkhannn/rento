@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { GlassView } from 'expo-glass-effect';
 import { 
   Compass, 
   Heart, 
@@ -69,15 +70,19 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   const currentConfig = navConfig[mode || 'renter'];
 
   // Safety check to prevent map error
+  const glassProps = Platform.OS === 'ios'
+    ? { glassEffectStyle: 'regular' as const, tintColor: Colors.background.primary }
+    : {};
+
   if (!currentConfig) {
     return (
-      <View style={styles.container} accessible={true} accessibilityRole="tablist">
-        {/* Render empty navigation while mode is loading */}
-      </View>
+      <GlassView style={styles.container} accessible={true} accessibilityRole="tablist" {...glassProps} />
     );
   }
 
   const renderTabItem = (item: TabItem, index: number) => {
+    // activeTab === -1 is intentional ("no tab active", e.g. when viewing a
+    // header-only route like /notifications that isn't part of the tab list).
     const isActive = activeTab === index;
     const IconComponent = item.icon;
     
@@ -109,44 +114,66 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   };
 
   return (
-    <View style={styles.container} accessible={true} accessibilityRole="tablist">
-      {currentConfig.map((item: TabItem, index: number) => renderTabItem(item, index))}
+    <View style={styles.floatingContainer}>
+      <GlassView style={styles.container} accessible={true} accessibilityRole="tablist" {...glassProps}>
+        {currentConfig.map((item: TabItem, index: number) => renderTabItem(item, index))}
+      </GlassView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  floatingContainer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
   container: {
     width: '100%',
-    height: 92,
+    height: 70,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingTop: 15,
-    paddingHorizontal: 11,
-    backgroundColor: Colors.background.primary,
-    borderTopWidth: 1,
-    borderTopColor: Colors.background.tertiary,
-    paddingBottom: 50,
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    backgroundColor: Platform.OS === 'ios' ? 'rgba(255, 255, 255, 0.8)' : Colors.background.primary,
+    borderRadius: 35,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 10,
+      },
+    }),
+    overflow: 'hidden',
   },
   tabItem: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
   iconContainer: {
     width: 24,
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: '600',
     fontFamily: 'System',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 12,
   },
 });
 

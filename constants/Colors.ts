@@ -1,4 +1,4 @@
-const tintColorLight = '#2f95dc';
+const tintColorLight = '#007AFF';
 
 const background = {
   primary: '#FFFFFF',
@@ -7,9 +7,9 @@ const background = {
 };
 
 const brand = {
-  primary: "#3770FF",
-  primaryMedium: "rgba(55, 112, 255, 0.3)",
-  primaryLight: "rgba(55, 112, 255, 0.2)",
+  primary: "#007AFF",
+  primaryMedium: "rgba(0, 122, 255, 0.3)",
+  primaryLight: "rgba(0, 122, 255, 0.2)",
 };
 
 const colors = {

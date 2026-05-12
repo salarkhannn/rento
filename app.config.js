@@ -41,7 +41,7 @@ export default ( {config} ) => ({
                 backgroundColor: "#ffffff"
             },
             useNextNotificationsApi: true,
-            softwareKeyboardLayoutMode: "pan",
+            softwareKeyboardLayoutMode: "resize",
             permissions: ["NOTIFICATIONS", "INTERNET"],
             package: "com.salarkhannn.rento"
         },

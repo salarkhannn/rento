@@ -83,6 +83,7 @@ export default function ListingsTab() {
           data={listings}
           renderItem={renderListing}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 120 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }

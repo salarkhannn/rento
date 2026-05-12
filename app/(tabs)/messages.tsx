@@ -94,9 +94,20 @@ export default function MessagesScreen() {
 
   const openConversation = (message: Message) => {
     const otherUser = getOtherUser(message);
+    console.log('Opening conversation with message:', message.id);
+    console.log('Other user object:', JSON.stringify(otherUser, null, 2));
+    
     if (otherUser) {
-      const userName = otherUser.name || 'Unknown User';
+      const userName = otherUser.name || 
+                      (otherUser.first_name ? `${otherUser.first_name} ${otherUser.last_name || ''}` : null) || 
+                      otherUser.email?.split('@')[0] || 
+                      'User';
+      
+      console.log(`Navigating to /conversation/${otherUser.id} with name ${userName}`);
       router.push(`/conversation/${otherUser.id}?name=${encodeURIComponent(userName)}`);
+    } else {
+      console.error('Cannot open conversation: otherUser is null');
+      Alert.alert('Error', 'Could not identify the other user in this conversation.');
     }
   };
 
@@ -131,7 +142,10 @@ export default function MessagesScreen() {
         <View style={styles.messageContent}>
           <View style={styles.messageHeader}>
             <Text style={styles.userName}>
-              {otherUser?.name || 'User name'}
+              {otherUser?.name || 
+               (otherUser?.first_name ? `${otherUser.first_name} ${otherUser.last_name || ''}` : null) || 
+               otherUser?.email?.split('@')[0] || 
+               'User'}
             </Text>
             <Text style={styles.timestamp}>
               {formatTime(item.created_at)}
@@ -142,7 +156,7 @@ export default function MessagesScreen() {
           </Text>
         </View>
         
-        {isUnread && <View style={styles.unreadDot} />}
+        {isUnread && <View style={styles.unreadDot} testID="unread-dot" />}
       </TouchableOpacity>
     );
   };
@@ -150,9 +164,6 @@ export default function MessagesScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Messages</Text>
-        </View>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading messages...</Text>
         </View>
@@ -207,6 +218,7 @@ export default function MessagesScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          testID="flat-list"
         />
       )}
     </View>
@@ -217,19 +229,7 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.secondary,
-  },
-  header: {
     backgroundColor: Colors.background.primary,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-  },
-  headerTitle: {
-    ...typography.title1Medium,
-    color: Colors.text.primary,
   },
   filterContainer: {
     flexDirection: 'row',
@@ -285,7 +285,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   listContainer: {
-    paddingVertical: 8,
+    paddingTop: 8,
+    paddingBottom: 120,
   },
   conversationItem: {
     flexDirection: 'row',

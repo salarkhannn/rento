@@ -10,6 +10,7 @@ import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
 import { ConditionalAuthGuard } from '@/components/ConditionalAuthGuard';
+import VerificationBadge from '@/components/VerificationBadge';
 
 export default function ProfileScreen() {
   const { user, signOut, mode, switchMode, loading: authLoading } = useAuth();
@@ -81,12 +82,28 @@ export default function ProfileScreen() {
     router.push('/(tabs)/notifications');
   };
 
-  const handleSwitchMode = async () => {
-    try {
-      await switchMode();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to switch mode. Please try again.');
-    }
+  const handleSwitchMode = () => {
+    const target = mode === 'renter' ? 'Lender' : 'Renter';
+    Alert.alert(
+      `Switch to ${target} mode?`,
+      mode === 'renter'
+        ? 'You\'ll see your dashboard, listings, and incoming booking requests.'
+        : 'You\'ll see items to rent, your bookings, and your wishlist.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: `Switch to ${target}`,
+          onPress: async () => {
+            try {
+              await switchMode();
+              router.replace('/(tabs)');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to switch mode. Please try again.');
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleDeleteProfile = () => {
@@ -161,9 +178,30 @@ export default function ProfileScreen() {
           )}
         </View>
         
-        <Text style={styles.userName}>
-          {profile?.name || 'John Doe'}
-        </Text>
+        <View style={styles.userNameContainer}>
+          <Text style={styles.userName}>
+            {profile?.name || 'John Doe'}
+          </Text>
+          {profile?.is_verified && <VerificationBadge size={20} />}
+        </View>
+
+        {profile?.verification_status === 'pending' && (
+          <View style={styles.statusBadge}>
+            <Ionicons name="time-outline" size={14} color="#f5a623" />
+            <Text style={styles.statusText}>Verification Pending</Text>
+          </View>
+        )}
+
+        {profile?.verification_status === 'rejected' && (
+          <TouchableOpacity 
+            style={[styles.statusBadge, styles.rejectedBadge]}
+            onPress={() => router.push('/edit-profile')}
+          >
+            <Ionicons name="alert-circle-outline" size={14} color="#ff3b30" />
+            <Text style={[styles.statusText, styles.rejectedText]}>Verification Rejected (Tap to fix)</Text>
+          </TouchableOpacity>
+        )}
+
         <Text style={styles.userEmail}>
           {user?.email || 'johndoe@example.com'}
         </Text>
@@ -211,6 +249,15 @@ export default function ProfileScreen() {
           </View>
           <Text style={styles.quickActionLabel}>Notifications</Text>
         </TouchableOpacity>
+
+        {profile?.is_admin && (
+          <TouchableOpacity style={styles.quickActionItem} onPress={() => router.push('/admin/dashboard')}>
+            <View style={[styles.quickActionIcon, { backgroundColor: '#fff0f0' }]}>
+              <Ionicons name="shield-checkmark-outline" size={24} color="#ff3b30" />
+            </View>
+            <Text style={[styles.quickActionLabel, { color: '#ff3b30' }]}>Admin</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Mode Switch */}
@@ -257,13 +304,13 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.secondary,
+    backgroundColor: Colors.background.primary,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background.secondary,
+    backgroundColor: Colors.background.primary,
   },
   loadingText: {
     ...typography.bodyRegular,
@@ -298,7 +345,31 @@ const styles = StyleSheet.create({
   userName: {
     ...typography.title2Emphasized,
     color: Colors.text.primary,
+  },
+  userNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 4,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff9e6',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  statusText: {
+    ...typography.caption1Medium,
+    color: '#f5a623',
+    marginLeft: 4,
+  },
+  rejectedBadge: {
+    backgroundColor: '#ffe5e5',
+  },
+  rejectedText: {
+    color: '#ff3b30',
   },
   userEmail: {
     ...typography.bodyRegular,

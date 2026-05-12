@@ -4,6 +4,8 @@ import { RentalItem } from "@/lib/supabase";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { ModeGuard } from "./guards/ModeGuard";
 
 export default function MyListingsScreen() {
@@ -68,8 +70,11 @@ export default function MyListingsScreen() {
 
     return (
       <ModeGuard requiredMode="lender">
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
             <View style={styles.header}>
+                <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+                    <Ionicons name="arrow-back" size={24} color="#333" />
+                </TouchableOpacity>
                 <Text style={styles.headerTitle}>My Listings</Text>
                 <TouchableOpacity
                     style={styles.addButton}
@@ -102,7 +107,7 @@ export default function MyListingsScreen() {
                     </View>
                 }
             />
-        </View>
+        </SafeAreaView>
       </ModeGuard>
     )
 }
@@ -118,11 +123,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
+    gap: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
   headerTitle: {
-    fontSize: 24,
+    flex: 1,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   addButton: {

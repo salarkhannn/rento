@@ -147,6 +147,14 @@ export default function ManageListingScreen() {
       }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2f95dc" />
+      </View>
+    );
+  }
+
   if (!item) {
     return (
       <View style={styles.centerContainer}>
@@ -160,7 +168,11 @@ export default function ManageListingScreen() {
 
   return (
     <ModeGuard requiredMode='lender'>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 120 }}
+        contentInsetAdjustmentBehavior="automatic"
+      >
         <View style={styles.header}>
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.price}>${item.price}/day</Text>
