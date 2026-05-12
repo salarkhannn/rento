@@ -114,6 +114,13 @@ export const updateBookingStatus = async (
         .single();
 
     if (error) throw error;
+
+    // Keep escrow lifecycle in lockstep with booking status. Done here (not
+    // at call sites) so that everywhere we move a booking forward, the money
+    // moves with it.
+    const { settleForBookingStatus } = await import('./escrow');
+    await settleForBookingStatus(bookingId, status);
+
     return data;
 }
 

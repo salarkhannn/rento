@@ -9,6 +9,7 @@ import { Booking } from '@/lib/supabase';
 import { handleBookingStatusChange } from '@/lib/notificationQueries';
 import { scheduleLocalNotification } from '@/lib/notifications';
 import { ConditionalAuthGuard } from '@/components/ConditionalAuthGuard';
+import { PaymentStatusBadge } from '@/components/PaymentStatusBadge';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
@@ -140,6 +141,10 @@ export default function BookingsScreen() {
         <Text style={styles.location}>
           📍 {booking.item?.location || 'Unknown location'}
         </Text>
+
+        <View style={styles.paymentRow}>
+          <PaymentStatusBadge status={booking.payment_status} />
+        </View>
 
         <View style={styles.bookingFooter}>
           <Text style={styles.price}>💰 ${booking.total_price + lateFee}</Text>
@@ -330,6 +335,9 @@ const styles = StyleSheet.create({
   location: {
     ...typography.subheadlineRegular,
     color: Colors.text.secondary,
+    marginBottom: 12,
+  },
+  paymentRow: {
     marginBottom: 12,
   },
   bookingFooter: {

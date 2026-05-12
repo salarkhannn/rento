@@ -15,6 +15,8 @@ import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
 import { Ionicons } from '@expo/vector-icons';
 import { createBooking } from '@/lib/queries';
+import { holdInEscrow } from '@/lib/escrow';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
 import { handleBookingRequest } from '@/lib/notificationQueries';
 import { scheduleLocalNotification } from '@/lib/notifications';
@@ -55,8 +57,20 @@ export default function PaymentScreen() {
         end_date: endDate,
         total_price: total,
         status: autoAccept ? 'CONFIRMED' : 'PENDING',
-        payment_status: 'escrow',
+        payment_status: 'pending',
       } as any);
+
+      // Capture funds into escrow via the state machine (single source of
+      // truth for payment-status transitions). Failure rolls the booking
+      // back so we don't leave a paid-for-but-unfunded booking around.
+      try {
+        await holdInEscrow(booking.id);
+      } catch (escrowError) {
+        console.error('Escrow hold failed, rolling back booking:', escrowError);
+        // Best-effort rollback. If this fails too, surface the escrow error.
+        await supabase.from('bookings').delete().eq('id', booking.id);
+        throw escrowError;
+      }
 
       await handleBookingRequest(booking.id, itemId, user!.id);
 
