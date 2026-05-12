@@ -12,15 +12,13 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import Button from '@/ui/components/Button';
 
 export default function ReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const insets = useSafeAreaInsets();
-  
+
   const [ownerRating, setOwnerRating] = useState(0);
   const [ownerComment, setOwnerComment] = useState('');
   
@@ -66,21 +64,17 @@ export default function ReviewScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={{ flex: 1 }} 
+    <KeyboardAvoidingView
+      style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView 
+      <ScrollView
         style={styles.container}
-        contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: 40 }}
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="close" size={28} color={Colors.text.primary} />
-          </TouchableOpacity>
-          <Text style={styles.title}>Post-Rental Review</Text>
-        </View>
-
         {/* SECTION 1: OWNER RATING */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Rate the Owner</Text>
@@ -156,19 +150,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 30,
+  flex: {
+    flex: 1,
   },
-  backButton: {
-    padding: 4,
-    marginRight: 12,
-  },
-  title: {
-    ...typography.title2Emphasized,
-    color: Colors.text.primary,
+  content: {
+    paddingTop: 8,
+    paddingBottom: 40,
   },
   section: {
     paddingHorizontal: 20,

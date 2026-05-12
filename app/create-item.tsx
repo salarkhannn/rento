@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image, Switch } from 'react-native';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
@@ -197,10 +207,16 @@ export default function CreateItemScreen() {
 
   return (
     <ModeGuard requiredMode='lender'>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.scrollContent}
+          contentInsetAdjustmentBehavior="automatic"
+          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.title}>List New Item</Text>
@@ -325,6 +341,7 @@ export default function CreateItemScreen() {
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </ModeGuard>
   );

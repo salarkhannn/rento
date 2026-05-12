@@ -82,12 +82,28 @@ export default function ProfileScreen() {
     router.push('/(tabs)/notifications');
   };
 
-  const handleSwitchMode = async () => {
-    try {
-      await switchMode();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to switch mode. Please try again.');
-    }
+  const handleSwitchMode = () => {
+    const target = mode === 'renter' ? 'Lender' : 'Renter';
+    Alert.alert(
+      `Switch to ${target} mode?`,
+      mode === 'renter'
+        ? 'You\'ll see your dashboard, listings, and incoming booking requests.'
+        : 'You\'ll see items to rent, your bookings, and your wishlist.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: `Switch to ${target}`,
+          onPress: async () => {
+            try {
+              await switchMode();
+              router.replace('/(tabs)');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to switch mode. Please try again.');
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleDeleteProfile = () => {

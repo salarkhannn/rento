@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   listContentContainer: {
-    paddingBottom: 20,
+    paddingBottom: 120,
   },
   bookingCard: {
     backgroundColor: Colors.background.primary,

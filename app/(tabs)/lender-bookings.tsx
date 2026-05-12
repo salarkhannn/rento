@@ -95,11 +95,11 @@ export default function LenderBookingsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Lender Bookings</Text>
       <FlatList
         data={bookings}
         keyExtractor={item => item.id}
         renderItem={renderBooking}
+        contentContainerStyle={{ paddingBottom: 120 }}
         ListEmptyComponent={
           <View style={styles.center}>
             <Text>No bookings for your items yet.</Text>

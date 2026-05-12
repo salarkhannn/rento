@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  StyleSheet, 
-  FlatList, 
-  TouchableOpacity, 
-  Image, 
-  Alert, 
+import {
   ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
   Modal,
-  TextInput
+  Platform,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from '@/components/Themed';
 import { getPendingVerifications, updateVerificationStatus } from '@/lib/queries';
 import { Profile } from '@/lib/supabase';
@@ -124,20 +127,13 @@ export default function VerificationQueueScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={Colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Verification Queue</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
       <FlatList
         data={pendingUsers}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -154,9 +150,9 @@ export default function VerificationQueueScreen() {
         animationType="slide"
         transparent={false}
       >
-        <View style={styles.modalContainer}>
+        <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setSelectedUser(null)}>
+            <TouchableOpacity onPress={() => setSelectedUser(null)} hitSlop={8}>
               <Ionicons name="close" size={28} color={Colors.text.primary} />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Review Verification</Text>
@@ -216,7 +212,7 @@ export default function VerificationQueueScreen() {
               </View>
             </View>
           )}
-        </View>
+        </SafeAreaView>
       </Modal>
 
       {/* Reject Reason Modal */}
@@ -225,7 +221,10 @@ export default function VerificationQueueScreen() {
         animationType="fade"
         transparent={true}
       >
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.dialog}>
             <Text style={styles.dialogTitle}>Rejection Reason</Text>
             <TextInput
@@ -236,14 +235,14 @@ export default function VerificationQueueScreen() {
               multiline
             />
             <View style={styles.dialogActions}>
-              <TouchableOpacity 
-                style={styles.dialogAction} 
+              <TouchableOpacity
+                style={styles.dialogAction}
                 onPress={() => setRejectModalVisible(false)}
               >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.dialogAction, styles.confirmAction]} 
+              <TouchableOpacity
+                style={[styles.dialogAction, styles.confirmAction]}
                 onPress={handleReject}
                 disabled={processing}
               >
@@ -251,7 +250,7 @@ export default function VerificationQueueScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -267,22 +266,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerTitle: {
-    ...typography.title3Emphasized,
-  },
   listContent: {
     padding: 20,
+    paddingBottom: 120,
   },
   card: {
     backgroundColor: '#fff',
@@ -332,7 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
+    paddingTop: 12,
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomWidth: 1,

@@ -285,7 +285,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   listContainer: {
-    paddingVertical: 8,
+    paddingTop: 8,
+    paddingBottom: 120,
   },
   conversationItem: {
     flexDirection: 'row',

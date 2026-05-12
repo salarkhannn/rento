@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase';
 import Colors from '@/constants/Colors';
 import { typography } from '@/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 
 export default function AdminDisputesScreen() {
   const [disputes, setDisputes] = useState<any[]>([]);
@@ -56,23 +55,16 @@ export default function AdminDisputesScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={Colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Dispute Resolution</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
       <FlatList
+        contentInsetAdjustmentBehavior="automatic"
         data={disputes}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle}>Issue #{item.id.slice(0, 8)}</Text>
-              <TouchableOpacity onPress={() => resolveDispute(item.id)}>
-                <Ionicons name="checkmark-done-circle" size={24} color="#4CAF50" />
+              <TouchableOpacity onPress={() => resolveDispute(item.id)} hitSlop={8}>
+                <Ionicons name="checkmark-done-circle" size={24} color={Colors.colors.green} />
               </TouchableOpacity>
             </View>
             <Text style={styles.cardMessage}>{item.message}</Text>
@@ -101,20 +93,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    ...typography.title2Emphasized,
-  },
   listContent: {
     padding: 20,
+    paddingBottom: 120,
   },
   card: {
     backgroundColor: '#fff',

@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, Alert, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -14,6 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function AuthSignUpScreen() {
   const { email: initialEmail } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const [email] = useState((initialEmail as string) || '');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -123,7 +132,14 @@ export default function AuthSignUpScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.flex}
+      contentContainerStyle={[styles.scrollContainer, { paddingTop: insets.top + 16 }]}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+      automaticallyAdjustKeyboardInsets
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.container}>
         <View style={styles.content}>
           <Text style={typography.title1Medium}>Finish signing up</Text>
@@ -212,6 +228,10 @@ export default function AuthSignUpScreen() {
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+    backgroundColor: '#F7F7F7',
+  },
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: '#F7F7F7',
@@ -220,7 +240,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7F7F7',
     paddingHorizontal: 29,
-    paddingTop: 60,
     alignItems: 'center',
   },
   content: {

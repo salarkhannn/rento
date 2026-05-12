@@ -81,6 +81,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   }
 
   const renderTabItem = (item: TabItem, index: number) => {
+    // activeTab === -1 is intentional ("no tab active", e.g. when viewing a
+    // header-only route like /notifications that isn't part of the tab list).
     const isActive = activeTab === index;
     const IconComponent = item.icon;
     

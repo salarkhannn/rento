@@ -325,9 +325,9 @@ const styles = StyleSheet.create({
   },
   listContentContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingTop: 16,
     gap: 16,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   viewToggle: {
     position: 'absolute',

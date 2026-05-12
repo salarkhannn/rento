@@ -48,17 +48,12 @@ export default function AdminDashboardScreen() {
   }
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
+      contentContainerStyle={styles.content}
+      contentInsetAdjustmentBehavior="automatic"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={Colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Admin Dashboard</Text>
-        <View style={{ width: 24 }} />
-      </View>
 
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
@@ -147,24 +142,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7F7F7',
   },
+  content: {
+    paddingBottom: 120,
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  title: {
-    ...typography.title2Emphasized,
   },
   statsGrid: {
     flexDirection: 'row',

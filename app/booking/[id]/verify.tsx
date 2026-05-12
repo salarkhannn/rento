@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Alert, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert, Image, ScrollView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import * as ImagePicker from 'expo-image-picker';
@@ -85,15 +85,12 @@ export default function VerifyHandoverScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="close" size={28} color={Colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>{type === 'check_in' ? 'Check-in Proof' : 'Check-out Proof'}</Text>
-        <View style={{ width: 28 }} />
-      </View>
-
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      contentInsetAdjustmentBehavior="automatic"
+      showsVerticalScrollIndicator={false}
+    >
       <Text style={styles.description}>
         Please upload clear photos of the item from different angles to document its current condition. 
         This helps protect you in case of disputes.
@@ -112,9 +109,11 @@ export default function VerifyHandoverScreen() {
           </View>
         ))}
         {images.length < 4 && (
-          <TouchableOpacity style={styles.addButton} onPress={pickImage}>
-            <Ionicons name="camera-outline" size={32} color={Colors.brand.primary} />
-            <Text style={styles.addText}>Add Photo</Text>
+          <TouchableOpacity style={styles.addButton} onPress={pickImage} activeOpacity={0.7}>
+            <View style={styles.addButtonInner}>
+              <Ionicons name="camera-outline" size={32} color={Colors.brand.primary} />
+              <Text style={styles.addText}>Add Photo</Text>
+            </View>
           </TouchableOpacity>
         )}
       </View>
@@ -137,20 +136,11 @@ export default function VerifyHandoverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background.primary,
   },
   content: {
     padding: 20,
-    paddingTop: 60,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  title: {
-    ...typography.title2Emphasized,
+    paddingBottom: 40,
   },
   description: {
     ...typography.bodyRegular,
@@ -179,7 +169,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background.primary,
     borderRadius: 12,
   },
   addButton: {
@@ -187,19 +177,23 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#eee',
+    borderColor: Colors.background.tertiary,
     borderStyle: 'dashed',
+    backgroundColor: Colors.background.secondary,
+  },
+  addButtonInner: {
+    flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fafafa',
   },
   addText: {
     ...typography.caption1Medium,
     color: Colors.brand.primary,
     marginTop: 8,
+    textAlign: 'center',
   },
   footer: {
-    marginTop: 'auto',
-    paddingBottom: 40,
+    marginTop: 24,
   },
 });

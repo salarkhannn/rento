@@ -492,18 +492,6 @@ export const updateBookingPhotos = async (
     if (error) throw error;
 };
 
-// Review Queries
-export const createReview = async (review: Omit<Review, 'id' | 'created_at' | 'reviewer'>): Promise<Review> => {
-    const { data, error } = await supabase
-        .from('reviews')
-        .insert(review)
-        .select()
-        .single();
-
-    if (error) throw error;
-    return data;
-};
-
 export const getItemReviews = async (itemId: string): Promise<Review[]> => {
     const { data, error } = await supabase
         .from('reviews')

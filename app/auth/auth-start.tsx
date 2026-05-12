@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
-import { StyleSheet, Alert } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
+import Colors from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import CustomTextInput from '@/ui/components/InputField';
 import CustomButton from '@/ui/components/Button';
@@ -18,31 +18,26 @@ export default function AuthStartScreen() {
     if (!email.trim()) {
       setError('Please enter a valid email address.');
       return;
-    } else {
-      setError('');
     }
+    setError('');
+
     setLoading(true);
     try {
-      // DEBUG: Remove this after testing
-      Alert.alert('Debug', `Hitting: ${supabase.supabaseUrl}`);
-      
       const { data, error } = await supabase
         .rpc('check_user_exists', { input_email: email.toLowerCase().trim() });
 
       if (error) {
         console.error('AuthStart: Supabase RPC error:', error);
         Alert.alert('Error', 'Unable to verify email.');
-        return; // commented out to bypass but check if the user exists
+        return;
       }
-      // let data = true;
-      // console.log('Bypassing email check, assuming user exists:');
+
       if (data === true) {
         router.push({ pathname: '/auth/auth-login', params: { email } });
       } else {
         router.push({ pathname: '/auth/auth-signup', params: { email } });
       }
-
-    } catch (error) {
+    } catch (e) {
       Alert.alert('Error', 'Something went wrong');
     } finally {
       setLoading(false);
@@ -50,79 +45,68 @@ export default function AuthStartScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={typography.title1Medium}>Welcome to Rento</Text>
+    <ScrollView
+      style={styles.flex}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+      automaticallyAdjustKeyboardInsets
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.form}>
+        <Text style={[typography.title1Medium, styles.heading]}>Welcome to Rento</Text>
 
-      <CustomTextInput
-        title='Email'
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        errorMessage={error}
-        helperText=""
-        containerStyle={{ width: '100%', marginBottom: 15 }}
-      />
+        <CustomTextInput
+          title="Email"
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          errorMessage={error}
+          helperText=""
+          containerStyle={styles.field}
+        />
 
-      <CustomButton
-        title="Continue with Email"
-        onPress={checkEmail}
-        disabled={loading}
-        loading={loading}
-        size="medium"
-        variant="filled"
-        color="colored"
-        style={{ width: '100%', marginBottom: 15 }}
-      />
-
-      {/* <View style={styles.dividerContainer}>
-        <View style={styles.line} />
-        <Text style={styles.text}>or</Text>
-        <View style={styles.line} />
-      </View> */}
-    </View>
+        <CustomButton
+          title="Continue with Email"
+          onPress={checkEmail}
+          disabled={loading}
+          loading={loading}
+          size="medium"
+          variant="filled"
+          color="colored"
+          style={styles.button}
+        />
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  flex: {
     flex: 1,
+    backgroundColor: Colors.background.secondary,
+  },
+  content: {
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 35,
-    alignItems: 'center',
-    backgroundColor: '#F7F7F7'
+    paddingHorizontal: 35,
+    paddingVertical: 24,
   },
-  title: {
-    fontFamily: 'SF Pro',
-    fontSize: 28,
-    letterSpacing: 0,
-    fontWeight: 'medium',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  socialButtonsContainer: {
-    marginTop: 20,
+  form: {
     width: '100%',
     alignItems: 'center',
-    gap: 10,
   },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 16,
+  heading: {
+    alignSelf: 'flex-start',
+    marginBottom: 24,
+  },
+  field: {
     width: '100%',
-    backgroundColor: '#F7F7F7',
+    marginBottom: 16,
   },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#B0B0B0', // grey tone similar to the image
-  },
-  text: {
-    marginHorizontal: 8,
-    fontSize: 14,
-    color: '#B0B0B0',
-    fontFamily: 'SF Pro',
+  button: {
+    width: '100%',
   },
 });

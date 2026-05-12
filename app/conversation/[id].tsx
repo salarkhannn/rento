@@ -7,11 +7,10 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  LayoutChangeEvent,
   Platform,
   Alert,
-  Dimensions,
   StatusBar,
-  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -29,7 +28,7 @@ export default function ConversationScreen() {
   const [sending, setSending] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const insets = useSafeAreaInsets();
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [otherUserName, setOtherUserName] = useState<string>(name || 'Conversation');
 
   useEffect(() => {
@@ -39,21 +38,9 @@ export default function ConversationScreen() {
     }
   }, [id, user]);
 
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      (e) => setKeyboardHeight(e.endCoordinates.height)
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => setKeyboardHeight(0)
-    );
-
-    return () => {
-      keyboardDidShowListener?.remove();
-      keyboardDidHideListener?.remove();
-    };
-  }, []);
+  const onHeaderLayout = (e: LayoutChangeEvent) => {
+    setHeaderHeight(e.nativeEvent.layout.height);
+  };
 
   const loadMessages = async () => {
     if (!id) return;
@@ -205,19 +192,24 @@ export default function ConversationScreen() {
         translucent={Platform.OS === 'android'} 
       />
       
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} testID="back-button">
+      <View
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
+        onLayout={onHeaderLayout}
+      >
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} testID="back-button" hitSlop={8}>
           <FontAwesome name="arrow-left" size={20} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{otherUserName}</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoidingView} 
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        // Android: app.config sets softwareKeyboardLayoutMode=resize, which
+        // already shrinks the window. Layering a KAV behavior on top would
+        // double-shrink and push the input way above the keyboard. Skip it.
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
-        enabled
+        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
       >
         <FlatList
           ref={flatListRef}
@@ -231,21 +223,13 @@ export default function ConversationScreen() {
           keyboardShouldPersistTaps="handled"
         />
 
-        <View style={[
-          styles.inputContainer,
-          Platform.OS === 'android' && { 
-            paddingBottom: Math.max(insets.bottom, 16),
-            marginBottom: keyboardHeight > 0 ? 0 : 0
-          },
-          Platform.OS === 'ios' && { 
-            paddingBottom: Math.max(insets.bottom, 16) 
-          }
-        ]}>
+        <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <TextInput
             style={styles.textInput}
             value={newMessage}
             onChangeText={setNewMessage}
             placeholder="Type a message..."
+            placeholderTextColor="#8E8E93"
             multiline
             maxLength={1000}
             textAlignVertical="top"
@@ -260,11 +244,12 @@ export default function ConversationScreen() {
             onPress={handleSendMessage}
             disabled={!newMessage.trim() || sending}
             testID="send-button"
+            hitSlop={8}
           >
-            <FontAwesome 
-              name={sending ? "spinner" : "send"} 
-              size={16} 
-              color={(!newMessage.trim() || sending) ? "#ccc" : "#007AFF"} 
+            <FontAwesome
+              name={sending ? 'spinner' : 'send'}
+              size={16}
+              color={!newMessage.trim() || sending ? '#C7C7CC' : '#FFFFFF'}
             />
           </TouchableOpacity>
         </View>
@@ -384,21 +369,26 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#E5E5EA',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     maxHeight: 100,
     fontSize: 16,
+    color: '#000',
+    backgroundColor: '#F2F2F7',
     textAlignVertical: 'top',
   },
   sendButton: {
     marginLeft: 8,
-    padding: 12,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sendButtonDisabled: {
-    opacity: 0.5,
+    backgroundColor: '#E5E5EA',
   },
 });
